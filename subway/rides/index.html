@@ -315,7 +315,7 @@
         const result = await res.json();
 
         if (res.ok) {
-          messageDiv.textContent = "New ride successfully recorded! ✅";
+          messageDiv.textContent = "New ride successfully recorded!";
           messageDiv.className = "msg success";
           await fetchRides();
         } else {
@@ -363,11 +363,11 @@
           messageDiv.textContent = "No rides found in database. Add some rides first!";
           messageDiv.className = "msg warning";
         } else {
-          messageDiv.textContent = `Loaded ${ridesArray.length} rides from database ✅`;
+          messageDiv.textContent = `Loaded ${ridesArray.length} rides from database`;
           messageDiv.className = "msg success";
         }
       } catch (err) {
-        console.error("❌ Fetch error:", err);
+        console.error("Fetch error:", err);
         allRides = [];
         messageDiv.textContent = `Error loading rides: ${err.message}`;
         messageDiv.className = "msg error";

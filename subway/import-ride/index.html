@@ -93,7 +93,8 @@
             <p>Please review the parsed rides below and make any corrections before submitting:</p>
             <div id="parsedRides"></div>
             <div class="actions" style="margin-top: 1rem;">
-                <button id="confirmButton" class="primary" onclick="confirmAndSubmit()">Confirm & Submit All Rides</button>
+                <button id="confirmButton" class="primary" onclick="confirmAndSubmit()">Confirm & Submit All
+                    Rides</button>
                 <button class="ghost" onclick="clearAll()">Cancel</button>
             </div>
         </section>
@@ -233,7 +234,7 @@
 
             } catch (error) {
                 const currentStep = error.message.includes('fetch') ? '2/5' : '3/5';
-                showMessage(`Step ${currentStep}: ❌ Error importing route: ${error.message}`, 'error');
+                showMessage(`Step ${currentStep}: Error importing route: ${error.message}`, 'error');
                 console.error('Import error:', error);
             } finally {
                 button.disabled = false;
