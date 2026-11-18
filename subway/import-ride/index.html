@@ -6,252 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NYC Subway Route Importer</title>
     <link rel="icon" type="image/x-icon" href="../../forrest.ico">
-    <style>
-        :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --border-color: #333;
-            --highlight-color: #1e1e1e;
-            --input-bg: #1e1e1e;
-            --input-border: #444;
-            --button-bg: #333;
-            --button-text: #fff;
-            --success-color: #90ee90;
-            --warning-color: #ffd700;
-            --error-color: #ff6b6b;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: sans-serif;
-            margin: 1em;
-        }
-
-        .container {
-            max-width: 100%;
-            padding: 1em;
-            box-sizing: border-box;
-        }
-
-        .nav-links {
-            margin-bottom: 2em;
-            display: flex;
-            gap: 1em;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: var(--text-color);
-            text-decoration: none;
-            padding: 0.5em 1em;
-            border: 1px solid var(--input-border);
-            background-color: var(--input-bg);
-            border-radius: 4px;
-        }
-
-        .nav-links a:hover {
-            background-color: var(--button-bg);
-        }
-
-        .nav-links a.active {
-            background-color: var(--button-bg);
-        }
-
-        input[type="url"] {
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            border: 1px solid var(--input-border);
-            margin: 0.5em 0;
-            padding: 0.75em;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-            border-radius: 4px;
-        }
-
-        button {
-            background-color: var(--button-bg);
-            color: var(--button-text);
-            border: 1px solid var(--input-border);
-            cursor: pointer;
-            padding: 0.75em 1.5em;
-            font-size: 1rem;
-            margin: 0.5em 0.5em 0.5em 0;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #444;
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .message {
-            margin: 1em 0;
-            padding: 0.75em;
-            border-radius: 4px;
-        }
-
-        .success {
-            background-color: rgba(144, 238, 144, 0.1);
-            border: 1px solid var(--success-color);
-            color: var(--success-color);
-        }
-
-        .warning {
-            background-color: rgba(255, 215, 0, 0.1);
-            border: 1px solid var(--warning-color);
-            color: var(--warning-color);
-        }
-
-        .error {
-            background-color: rgba(255, 107, 107, 0.1);
-            border: 1px solid var(--error-color);
-            color: var(--error-color);
-        }
-
-        .info-box {
-            margin: 1em 0;
-            padding: 1em;
-            background-color: var(--highlight-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-        }
-
-        .route-preview {
-            border: 1px solid var(--border-color);
-            background-color: var(--highlight-color);
-            padding: 1em;
-            margin: 1em 0;
-            border-radius: 4px;
-        }
-
-        .ride-item {
-            border: 1px solid var(--input-border);
-            background-color: var(--input-bg);
-            padding: 1em;
-            margin: 0.5em 0;
-            border-radius: 4px;
-            position: relative;
-        }
-
-        .ride-item.transfer {
-            border-left: 4px solid var(--warning-color);
-        }
-
-        .ride-item.editing {
-            border-color: var(--success-color);
-            box-shadow: 0 0 5px rgba(144, 238, 144, 0.3);
-        }
-
-        .ride-controls {
-            display: flex;
-            gap: 0.5em;
-            margin-top: 0.5em;
-            flex-wrap: wrap;
-        }
-
-        .ride-controls button {
-            padding: 0.25em 0.5em;
-            font-size: 0.8em;
-            margin: 0;
-            min-width: auto;
-        }
-
-        .edit-button {
-            background-color: var(--success-color);
-            color: var(--bg-color);
-        }
-
-        .delete-button {
-            background-color: var(--error-color);
-            color: white;
-        }
-
-        .add-button {
-            background-color: var(--warning-color);
-            color: var(--bg-color);
-        }
-
-        .save-button {
-            background-color: var(--success-color);
-            color: var(--bg-color);
-        }
-
-        .cancel-button {
-            background-color: var(--input-border);
-            color: var(--text-color);
-        }
-
-        .inline-edit {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.5em;
-            margin: 0.5em 0;
-        }
-
-        .inline-edit select,
-        .inline-edit input {
-            padding: 0.5em;
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: var(--text-color);
-            font-size: 0.9em;
-        }
-
-        .ride-counter {
-            position: absolute;
-            top: -10px;
-            right: 10px;
-            background-color: var(--highlight-color);
-            border: 1px solid var(--input-border);
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .ride-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.5em;
-            margin: 0.5em 0;
-        }
-
-        .ride-detail {
-            font-size: 0.9em;
-        }
-
-        .ride-detail strong {
-            color: var(--success-color);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        @media (max-width: 600px) {
-            .nav-links {
-                flex-direction: column;
-            }
-
-            .nav-links a {
-                text-align: center;
-            }
-
-            .ride-details {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/site.css">
     <script>
         // Load subway stations data
         let stopsByLine = {};
@@ -272,60 +27,84 @@
 </head>
 
 <body>
-    <div class="container">
-        <a href="/"
-            style="color:#888;text-decoration:none;font-size:0.9rem;display:inline-block;margin-bottom:1.5em;">Return to
-            Home</a>
-        <nav class="nav-links">
-            <a href="../">← Subway Home</a>
-            <a href="../rides/">Record Ride</a>
-            <a href="." class="active">Import Route</a>
-            <a href="../stats/">Ride Statistics</a>
+
+    <header class="top">
+        <a class="top-id" href="../">Subway Tracker</a>
+        <nav class="nav" aria-label="Subway">
+            <a href="../">Index</a>
+            <a href="../rides/">Record</a>
+            <a href="." aria-current="page">Import</a>
+            <a href="../stats/">Statistics</a>
         </nav>
+        <span class="clock" data-clock>NYC --:--:--</span>
+    </header>
 
-        <h1>Import Subway Route 📋</h1>
+    <main class="page">
 
-        <div>
-            <h2>Import from Google Maps Link</h2>
-            <p>Paste a Google Maps link with transit directions to automatically extract subway route information:</p>
+        <section class="sect">
+            <h1 class="display display--md">Import<br>route</h1>
+        </section>
 
-            <label for="mapsUrl">Google Maps Link:</label>
-            <input type="url" id="mapsUrl" placeholder="https://www.google.com/maps/... or https://maps.app.goo.gl/...">
+        <section class="sect">
+            <div class="sect-head">
+                <h2>Import from Google Maps link</h2>
+                <span class="label muted">01 / Source</span>
+            </div>
+            <p class="lede" style="font-size: 1.2rem; max-width: 52ch;">Paste a Google Maps link with transit directions
+                to <span class="hl">automatically extract</span> subway route information.</p>
+
+            <div style="margin-top: 1.5rem; max-width: 60rem;">
+                <label for="mapsUrl">Google Maps Link</label>
+                <input type="url" id="mapsUrl"
+                    placeholder="https://www.google.com/maps/... or https://maps.app.goo.gl/...">
+            </div>
 
             <div class="info-box">
-                <h3>How to get a Google Maps link:</h3>
-                <ol style="margin: 0.5em 0; padding-left: 1.5em;">
+                <h3>How to get a Google Maps link</h3>
+                <ol>
                     <li>Open Google Maps and search for your destination</li>
-                    <li>Click "Directions" and select transit/subway mode 🚇</li>
+                    <li>Click "Directions" and select transit/subway mode</li>
                     <li>Choose your preferred route</li>
                     <li>Click "Share" and copy the link</li>
                     <li>Paste the link above and click "Import Route"</li>
                 </ol>
-                <p style="margin: 0.5em 0; font-size: 0.9em; color: #888;">
-                    <strong>Example URLs that work:</strong><br>
+                <p class="small">
+                    Example URLs that work:<br>
                     • https://www.google.com/maps/dir/...<br>
                     • https://maps.google.com/...<br>
                     • https://maps.app.goo.gl/...
                 </p>
             </div>
 
-            <button id="parseButton" onclick="parseFromLink()">Import Route</button>
-            <button id="clearButton" onclick="clearAll()">Clear</button>
-        </div>
+            <div class="actions">
+                <button id="parseButton" class="primary" onclick="parseFromLink()">Import Route</button>
+                <button id="clearButton" class="ghost" onclick="clearAll()">Clear</button>
+            </div>
 
-        <div id="messageArea"></div>
+            <div id="messageArea"></div>
+        </section>
 
-        <div id="routePreview" class="route-preview hidden">
-            <h2>Parsed Route</h2>
+        <section id="routePreview" class="sect route-preview hidden">
+            <div class="sect-head">
+                <h2>Parsed route</h2>
+                <span class="label muted">02 / Review</span>
+            </div>
             <p>Please review the parsed rides below and make any corrections before submitting:</p>
             <div id="parsedRides"></div>
-            <div style="margin-top: 1em;">
-                <button id="confirmButton" onclick="confirmAndSubmit()">Confirm & Submit All Rides</button>
-                <button onclick="clearAll()">Cancel</button>
+            <div class="actions" style="margin-top: 1rem;">
+                <button id="confirmButton" class="primary" onclick="confirmAndSubmit()">Confirm & Submit All Rides</button>
+                <button class="ghost" onclick="clearAll()">Cancel</button>
             </div>
-        </div>
-    </div>
+        </section>
 
+    </main>
+
+    <footer class="foot">
+        <span>Tools just for me to use :)</span>
+        <a href="../">← Subway index</a>
+    </footer>
+
+    <script src="../../assets/site.js"></script>
     <script>
         const backendUrl = `https://subway-tracker-production.up.railway.app`;
         let parsedRidesData = [];

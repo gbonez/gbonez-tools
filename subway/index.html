@@ -1,16 +1,121 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Subway Tracker</title>
+  <link rel="icon" type="image/x-icon" href="../forrest.ico">
+  <link rel="stylesheet" href="../assets/site.css">
 </head>
+
 <body>
-  <h1>Subway Tracker</h1>
-  <ul>
-    <li><a href="/subway/rides/">Record Ride</a></li>
-    <li><a href="/subway/favorites/">Favorites</a></li>
-    <li><a href="/subway/stats/">Statistics</a></li>
-  </ul>
+
+  <header class="top">
+    <a class="top-id" href="/">gbonez.org</a>
+    <nav class="nav" aria-label="Subway">
+      <a href="." aria-current="page">Index</a>
+      <a href="rides/">Record</a>
+      <a href="favorites/">Favorites</a>
+      <a href="stats/">Statistics</a>
+    </nav>
+    <span class="clock" data-clock>NYC --:--:--</span>
+  </header>
+
+  <main class="page">
+
+    <section class="sect">
+      <h1 class="display">Subway<br>Tracker</h1>
+      <p class="lede" style="margin-top: 1.5rem;">
+        A private log of every ride on the <span class="hl">New York City subway</span>, entered by hand.
+      </p>
+    </section>
+
+    <section class="sect sect--flush" aria-label="Latest figures">
+      <div class="readout" aria-live="polite">
+        <div>
+          <span class="label">Rides logged</span>
+          <span class="v" id="rideCount">—</span>
+        </div>
+        <div>
+          <span class="label">Last line</span>
+          <span class="v" id="lastLine">—</span>
+        </div>
+        <div>
+          <span class="label" id="lastDate">Last trip</span>
+          <span class="v v--sm" id="lastTrip">Loading…</span>
+        </div>
+      </div>
+    </section>
+
+    <nav aria-label="Sections">
+      <ul class="index">
+        <li>
+          <a href="rides/">
+            <span class="n">01</span>
+            <span class="t">Record ride<i>→</i></span>
+            <span class="d">Log a new ride. Browse the full history.</span>
+          </a>
+        </li>
+        <li>
+          <a href="favorites/">
+            <span class="n">02</span>
+            <span class="t">Favorites<i>→</i></span>
+            <span class="d">Saved routes. Coming soon.</span>
+          </a>
+        </li>
+        <li>
+          <a href="stats/">
+            <span class="n">03</span>
+            <span class="t">Statistics<i>→</i></span>
+            <span class="d">Charts and breakdowns of every ride.</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <section class="sect">
+      <div class="strip" id="strip" aria-hidden="true"></div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <span>Tools just for me to use :)</span>
+    <span>Set in Helvetica Neue + system mono. No frameworks.</span>
+  </footer>
+
+  <script src="../assets/site.js"></script>
+  <script>
+    const backendUrl = 'https://subway-tracker-production.up.railway.app';
+
+    document.getElementById('strip').innerHTML =
+      ['1', '2', '3', '4', '5', '6', '7', 'A', 'C', 'E', 'B', 'D', 'F', 'M', 'G', 'J', 'Z', 'L', 'N', 'Q', 'R', 'W']
+        .map(window.mtaBullet).join('');
+
+    // One tiny request: the newest ride plus the total count.
+    fetch(`${backendUrl}/rides/?per_page=1`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        const total = data.pagination && data.pagination.total;
+        const last = data.rides && data.rides[0];
+        document.getElementById('rideCount').textContent = total != null ? total : '—';
+        if (last) {
+          document.getElementById('lastLine').innerHTML = window.mtaBullet(last.line);
+          document.getElementById('lastDate').textContent = `Last trip — ${last.date}`;
+          document.getElementById('lastTrip').textContent = `${last.board_stop} → ${last.depart_stop}`;
+        } else {
+          document.getElementById('lastTrip').textContent = 'No rides yet';
+        }
+      })
+      .catch(() => {
+        document.getElementById('lastTrip').textContent = 'Server unreachable';
+      });
+  </script>
+
 </body>
+
 </html>

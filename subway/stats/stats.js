@@ -63,8 +63,12 @@ function updateDateRangeDisplay() {
 }
 
 // Chart color schemes
+// Charts sit on dark panels, so labels stay light; fonts match the site's mono.
+Chart.defaults.font.family = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+Chart.defaults.font.size = 11;
+
 const colors = {
-    primary: '#4CAF50',
+    primary: '#3dff5c',
     secondary: '#2196F3',
     accent: '#FF9800',
     danger: '#F44336',
