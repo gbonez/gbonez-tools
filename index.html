@@ -3,20 +3,71 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0;url=/subway/">
-  <title>Redirecting…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#121315">
+  <meta name="description" content="Tools just for me to use :)">
+  <title>gbonez.org</title>
   <link rel="icon" type="image/x-icon" href="forrest.ico">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/pond.css">
 </head>
 
 <body>
-  <script>window.location.replace("/subway/");</script>
-  <main class="page">
-    <section class="sect">
-      <p class="label">Redirecting to <a href="/subway/">/subway/</a></p>
-    </section>
+
+  <canvas id="pond" aria-hidden="true"></canvas>
+
+  <!-- Shared dither texture for the lilypads. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <pattern id="pad-dots" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <circle cx="1.75" cy="1.75" r="1.05" fill="#0b0b0b" fill-opacity=".38" />
+        <circle cx="5.25" cy="5.25" r="1.05" fill="#0b0b0b" fill-opacity=".38" />
+      </pattern>
+    </defs>
+  </svg>
+
+  <header class="hud">
+    <span class="hud-id">gbonez.org</span>
+    <span data-clock>NYC --:--:--</span>
+  </header>
+
+  <main class="water">
+
+    <a class="pad pad--subway" href="/subway/" aria-label="Subway — a personal ride tracker">
+      <svg class="pad-leaf" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <path class="fill" d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" />
+        <path d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" fill="url(#pad-dots)" />
+        <path class="vein" d="M50 50 L18 24 M50 50 L10 55 M50 50 L28 88 M50 50 L66 94 M50 50 L82 78" />
+      </svg>
+      <span class="pad-label">
+        <span class="pad-num">01</span>
+        <span class="pad-name">Subway</span>
+      </span>
+      <span class="pad-path">/subway/</span>
+    </a>
+
+    <a class="pad pad--forrestle" href="/forrestle/" aria-label="Forrestle — a word game">
+      <svg class="pad-leaf" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <path class="fill" d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" />
+        <path d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" fill="url(#pad-dots)" />
+        <path class="vein" d="M50 50 L18 24 M50 50 L10 55 M50 50 L28 88 M50 50 L66 94 M50 50 L82 78" />
+      </svg>
+      <span class="pad-label">
+        <span class="pad-num">02</span>
+        <span class="pad-name">Forrestle</span>
+      </span>
+      <span class="pad-path">/forrestle/</span>
+    </a>
+
   </main>
+
+  <footer class="hud hud--bottom">
+    <span>Tools just for me to use :)</span>
+    <span class="hud-hint">Touch the water</span>
+  </footer>
+
+  <script src="assets/site.js"></script>
+  <script src="assets/pond.js"></script>
 </body>
 
 </html>

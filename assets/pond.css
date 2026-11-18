@@ -1,0 +1,227 @@
+/*
+  gbonez.org home — the pond.
+  A dark field of stippled dots; the pointer ripples it, and the links float on it.
+  Palette and type follow byotone.com's grain + mint, with the site's mono labels.
+*/
+
+:root {
+  --bg: #121315;
+  --bone: #e8e4d8;
+  --dim: #8a877d;
+  --mint: #9dffc4;
+  --pink: #ffb8f2;
+  --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--bone);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  font-family: var(--sans);
+}
+
+#pond {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ───────── corner readouts ───────── */
+
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: max(0.9rem, env(safe-area-inset-top)) max(1.1rem, env(safe-area-inset-right)) 0.9rem max(1.1rem, env(safe-area-inset-left));
+  font: 500 0.72rem/1.2 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  pointer-events: none;
+}
+
+.hud--bottom {
+  top: auto;
+  bottom: 0;
+  padding-bottom: max(0.9rem, env(safe-area-inset-bottom));
+}
+
+.hud-id {
+  color: var(--bone);
+  font-weight: 700;
+}
+
+[data-clock] {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ───────── lilypads ───────── */
+
+.water {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pad {
+  --s: 10rem;
+  --notch: 18deg;
+  --rot: 0deg;
+
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #0b0b0b;
+  text-decoration: none;
+  pointer-events: auto;
+  will-change: transform;
+}
+
+.pad--subway {
+  --x: 34%;
+  --y: 46%;
+  --notch: 78deg;
+}
+
+.pad--forrestle {
+  --x: 67%;
+  --y: 59%;
+  --s: 8.25rem;
+  --notch: 118deg;
+}
+
+.pad-leaf {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(calc(var(--notch) + var(--rot)));
+}
+
+.pad-leaf .fill {
+  fill: var(--mint);
+  transition: fill 0.15s ease;
+}
+
+.pad-leaf .vein {
+  fill: none;
+  stroke: #0b0b0b;
+  stroke-opacity: 0.28;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+
+.pad:hover .fill,
+.pad:focus-visible .fill {
+  fill: var(--bone);
+}
+
+.pad:focus-visible {
+  outline: 2px dashed var(--mint);
+  outline-offset: 8px;
+}
+
+.pad-label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  /* sits above the notch, which opens toward the bottom of the leaf */
+  transform: translateY(-17%);
+}
+
+.pad-num {
+  font: 500 0.68rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.pad-name {
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.pad-path {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  font: 500 0.68rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.pad:hover .pad-path,
+.pad:focus-visible .pad-path {
+  color: var(--bone);
+}
+
+/* Tall, narrow screens: stack the pads so they never overlap. */
+@media (max-aspect-ratio: 4/5) {
+  .pad--subway {
+    --x: 42%;
+    --y: 36%;
+  }
+
+  .pad--forrestle {
+    --x: 62%;
+    --y: 64%;
+  }
+}
+
+@media (max-width: 480px) {
+  .pad {
+    --s: 8.5rem;
+  }
+
+  .pad--forrestle {
+    --s: 7.5rem;
+  }
+
+  .pad-name {
+    font-size: 0.98rem;
+  }
+
+  .hud-hint {
+    text-align: right;
+  }
+}

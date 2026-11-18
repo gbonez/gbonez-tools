@@ -7,9 +7,14 @@
   - flat colour fields that invert on hover; a highlighter for emphasis
   - ledger tables; dark panels for data
   - the only decoration is the MTA line bullet
+
+  Night mode swaps the surface/ink variables below. Text that sits on an accent
+  colour uses --on-accent / --on-blue so it stays legible in both themes.
 */
 
 :root {
+  color-scheme: light;
+
   --paper: #efebe0;
   --white: #fbfaf6;
   --ink: #0b0b0b;
@@ -19,10 +24,29 @@
   --green: #3dff5c;
   --pink: #ffb8f2;
   --red: #e5001c;
+  --on-accent: #0b0b0b;
+  --on-blue: #efebe0;
+  --panel: #0b0b0b;
 
   --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --gutter: clamp(1rem, 2.5vw, 2rem);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #141517;
+  --white: #1c1d20;
+  --ink: #ece8dc;
+  --ink-2: #a39f93;
+  --rule-soft: #34353a;
+  --blue: #5563ff;
+  --red: #ff3b4f;
+}
+
+:root[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M0 0h12L6 8z' fill='%23ece8dc'/%3E%3C/svg%3E");
 }
 
 * {
@@ -48,7 +72,7 @@ body {
 
 ::selection {
   background: var(--green);
-  color: var(--ink);
+  color: var(--on-accent);
 }
 
 a {
@@ -60,7 +84,7 @@ a {
 
 a:hover {
   background: var(--blue);
-  color: var(--paper);
+  color: var(--on-blue);
   text-decoration: none;
 }
 
@@ -135,6 +159,7 @@ p + p {
 
 .hl {
   background: var(--green);
+  color: var(--on-accent);
   padding: 0 0.15em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -142,6 +167,7 @@ p + p {
 
 .hl--pink {
   background: var(--pink);
+  color: var(--on-accent);
 }
 
 /* ───────── frame ───────── */
@@ -183,17 +209,41 @@ p + p {
 
 .nav a[aria-current="page"] {
   background: var(--green);
-  color: var(--ink);
+  color: var(--on-accent);
 }
 
 .nav a:hover {
   background: var(--blue);
-  color: var(--paper);
+  color: var(--on-blue);
 }
 
 .clock {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.9rem;
+}
+
+.theme-toggle {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--ink);
+  padding: 0.3rem 0.55rem;
+  line-height: 1;
+}
+
+.theme-toggle:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
 
 .page {
@@ -402,6 +452,7 @@ select {
 select:hover,
 input:hover {
   background-color: var(--pink);
+  color: var(--on-accent);
 }
 
 input[type="checkbox"] {
@@ -420,6 +471,7 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:checked {
   background: var(--green);
+  color: var(--on-accent);
 }
 
 input[type="checkbox"]:checked::after {
@@ -456,6 +508,7 @@ button {
 button:hover:not(:disabled) {
   background: var(--blue);
   border-color: var(--blue);
+  color: var(--on-blue);
 }
 
 button:disabled {
@@ -465,7 +518,7 @@ button:disabled {
 
 button.primary {
   background: var(--green);
-  color: var(--ink);
+  color: var(--on-accent);
 }
 
 button.primary:hover:not(:disabled) {
@@ -573,11 +626,13 @@ button.link:hover:not(:disabled) {
 .msg.success,
 .message.success {
   background: var(--green);
+  color: var(--on-accent);
 }
 
 .msg.warning,
 .message.warning {
   background: var(--pink);
+  color: var(--on-accent);
 }
 
 .msg.error,
@@ -625,7 +680,7 @@ th[data-sortable] {
 
 th[data-sortable]:hover {
   background: var(--blue);
-  color: var(--paper);
+  color: var(--on-blue);
 }
 
 td {
@@ -640,6 +695,7 @@ tbody tr:last-child td {
 
 tbody tr:hover {
   background: var(--pink);
+  color: var(--on-accent);
 }
 
 th:first-child,
@@ -679,13 +735,13 @@ td:last-child {
 .filter-button:hover:not(:disabled) {
   background: var(--blue);
   border-color: var(--blue);
-  color: var(--paper);
+  color: var(--on-blue);
 }
 
 .filter-button.active {
   background: var(--green);
   border-color: var(--ink);
-  color: var(--ink);
+  color: var(--on-accent);
 }
 
 .range {
@@ -724,7 +780,7 @@ td:last-child {
 
 .summary-card:first-child {
   background: var(--blue);
-  color: var(--paper);
+  color: var(--on-blue);
 }
 
 .summary-value {
@@ -748,27 +804,43 @@ td:last-child {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 34rem), 1fr));
   border-top: 1px solid var(--ink);
   border-left: 1px solid var(--ink);
+  counter-reset: fig;
 }
 
+/* Data lives on a fixed dark panel in both themes (charts draw light-on-dark). */
 .chart-container {
-  background: var(--ink);
-  color: #e0e0e0;
+  --chart-ink: #e8e4d8;
+  --chart-dim: #8a877d;
+  background: var(--panel);
+  color: var(--chart-ink);
   padding: 1rem;
   border-right: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
   min-width: 0;
+  counter-increment: fig;
 }
 
 .chart-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
   font: 500 0.72rem/1.3 var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--green);
+  padding-bottom: 0.75rem;
   margin-bottom: 1rem;
+  border-bottom: 1px solid #2c2d2f;
 }
 
 .chart-title::before {
-  content: "+ ";
+  content: "+";
+}
+
+.chart-title::after {
+  content: "Fig. " counter(fig, decimal-leading-zero);
+  margin-left: auto;
+  color: var(--chart-dim);
 }
 
 .chart-wrapper {
@@ -789,7 +861,7 @@ td:last-child {
   font: 500 0.8rem/1.4 var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9a9a9a;
+  color: var(--chart-dim);
 }
 
 .chart-wrapper .error {
@@ -837,6 +909,7 @@ td:last-child {
 
 .ride-item.editing {
   background: var(--green);
+  color: var(--on-accent);
 }
 
 .ride-item h3 {

@@ -62,22 +62,164 @@ function updateDateRangeDisplay() {
     }
 }
 
-// Chart color schemes
-// Charts sit on dark panels, so labels stay light; fonts match the site's mono.
-Chart.defaults.font.family = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+// ── Chart theme ────────────────────────────────────────────────────────────
+// Mirrors the site: flat colour fields, square corners, hairline dotted rules,
+// mono labels, and hover that flips to the pink highlight. Panels are always
+// dark, so everything here is light-on-dark in both day and night mode.
+const chartTheme = {
+    ink: '#e8e4d8',
+    dim: '#8a877d',
+    rule: '#2c2d2f',
+    panel: '#0b0b0b',
+    paper: '#efebe0',
+    hover: '#ffb8f2',
+    green: '#3dff5c',
+    mono: 'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
+    sans: '"Helvetica Neue", Helvetica, Arial, sans-serif'
+};
+
+Chart.defaults.font.family = chartTheme.mono;
 Chart.defaults.font.size = 11;
+Chart.defaults.color = chartTheme.ink;
+Chart.defaults.borderColor = chartTheme.rule;
+Chart.defaults.elements.bar.borderRadius = 0;
+Chart.defaults.elements.bar.borderWidth = 0;
+Chart.defaults.elements.arc.borderWidth = 3;
+Chart.defaults.elements.arc.borderColor = chartTheme.panel;
+Chart.defaults.animation = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? false
+    : { duration: 400 };
+
+Object.assign(Chart.defaults.plugins.tooltip, {
+    backgroundColor: chartTheme.paper,
+    titleColor: '#0b0b0b',
+    bodyColor: '#0b0b0b',
+    borderColor: '#0b0b0b',
+    borderWidth: 1,
+    cornerRadius: 0,
+    caretSize: 0,
+    padding: 10,
+    displayColors: false,
+    titleFont: { family: chartTheme.mono, size: 11, weight: '700' },
+    bodyFont: { family: chartTheme.mono, size: 11 },
+    footerFont: { family: chartTheme.mono, size: 11 }
+});
+
+Object.assign(Chart.defaults.plugins.legend.labels, {
+    usePointStyle: true,
+    pointStyle: 'rect',
+    boxWidth: 8,
+    boxHeight: 8,
+    padding: 16,
+    color: chartTheme.ink,
+    font: { family: chartTheme.mono, size: 11 }
+});
+
+// Numeric axis: no axis line, faint dotted rules, dim ticks.
+function chartValueScale(extra = {}) {
+    return {
+        beginAtZero: true,
+        grace: '6%',
+        border: { display: false, dash: [1, 4] },
+        grid: { color: chartTheme.rule, tickLength: 0 },
+        ticks: { color: chartTheme.dim, precision: 0, padding: 8, maxTicksLimit: 6 },
+        ...extra
+    };
+}
+
+// Category axis: a solid baseline, no gridlines, full-strength labels.
+function chartCategoryScale(extra = {}) {
+    return {
+        border: { color: chartTheme.ink, width: 1 },
+        grid: { display: false },
+        ticks: { color: chartTheme.ink, padding: 6 },
+        ...extra
+    };
+}
+
+function contrastText(hex) {
+    const n = parseInt(String(hex).replace('#', ''), 16);
+    const lum = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+    return lum > 0.6 ? '#0b0b0b' : '#ffffff';
+}
+
+// Prints each bar's value at its tip, ledger-style.
+const barValueLabels = {
+    id: 'barValueLabels',
+    afterDatasetsDraw(chart) {
+        const horizontal = chart.options.indexAxis === 'y';
+        const ctx = chart.ctx;
+        chart.getDatasetMeta(0).data.forEach((bar, i) => {
+            const value = chart.data.datasets[0].data[i];
+            if (!value || (!horizontal && bar.width < 14)) return;
+            ctx.save();
+            ctx.fillStyle = chartTheme.ink;
+            ctx.font = `600 11px ${chartTheme.mono}`;
+            if (horizontal) {
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(value, bar.x + 6, bar.y);
+            } else {
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(value, bar.x, bar.y - 4);
+            }
+            ctx.restore();
+        });
+    }
+};
+
+// Draws an MTA line bullet in place of each category label.
+const lineBullets = {
+    id: 'lineBullets',
+    afterDatasetsDraw(chart) {
+        const ds = chart.data.datasets[0];
+        const ctx = chart.ctx;
+        chart.getDatasetMeta(0).data.forEach((bar, i) => {
+            const label = String(chart.data.labels[i]);
+            const fill = ds.backgroundColor[i];
+            const size = label.length === 1 ? 12 : label.length === 2 ? 10 : 8;
+            const cx = chart.chartArea.left - 18;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, bar.y, 11, 0, Math.PI * 2);
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.fillStyle = contrastText(fill);
+            ctx.font = `700 ${size}px ${chartTheme.sans}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, cx, bar.y + 0.5);
+            ctx.restore();
+        });
+    }
+};
+
+// Total in the middle of the borough ring.
+const doughnutCenter = {
+    id: 'doughnutCenter',
+    afterDraw(chart) {
+        const { left, right, top, bottom } = chart.chartArea;
+        const total = chart.data.datasets[0].data
+            .reduce((sum, v, i) => sum + (chart.getDataVisibility(i) ? v : 0), 0);
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = chartTheme.ink;
+        ctx.font = `700 40px ${chartTheme.sans}`;
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(total, (left + right) / 2, (top + bottom) / 2 + 8);
+        ctx.fillStyle = chartTheme.dim;
+        ctx.font = `500 11px ${chartTheme.mono}`;
+        ctx.fillText('VISITS', (left + right) / 2, (top + bottom) / 2 + 28);
+        ctx.restore();
+    }
+};
 
 const colors = {
-    primary: '#3dff5c',
-    secondary: '#2196F3',
-    accent: '#FF9800',
-    danger: '#F44336',
-    warning: '#FFC107',
-    info: '#00BCD4',
-    gradient: [
-        '#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0',
-        '#607D8B', '#795548', '#3F51B5', '#009688', '#FFC107'
-    ]
+    primary: chartTheme.green,
+    secondary: '#5563ff',
+    accent: '#ffb8f2'
 };
 
 // Official MTA line colors
@@ -757,6 +899,48 @@ function animateValue(elementId, start, end, suffix = '') {
     requestAnimationFrame(animate);
 }
 
+// Ranked stops as horizontal bars: names stay readable, no rotated labels.
+function stopsBarConfig(top10Data, metric) {
+    return {
+        type: 'bar',
+        data: {
+            labels: top10Data.map(item => shortenStationName(item.stop_name)),
+            datasets: [{
+                label: metric,
+                data: top10Data.map(item => item.count),
+                backgroundColor: top10Data.map(item => item.color),
+                hoverBackgroundColor: chartTheme.hover,
+                barPercentage: 0.72,
+                categoryPercentage: 0.92
+            }]
+        },
+        plugins: [barValueLabels],
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { right: 8 } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: items => top10Data[items[0].dataIndex].stop_name, // full name
+                        afterTitle: items => {
+                            const lines = top10Data[items[0].dataIndex].lines;
+                            return lines && lines.length > 0 ? `Lines: ${lines.join('/')}` : '';
+                        },
+                        label: context => `${metric}: ${context.parsed.x}`
+                    }
+                }
+            },
+            scales: {
+                x: chartValueScale(),
+                y: chartCategoryScale({ ticks: { color: chartTheme.ink, padding: 8, font: { size: 11 } } })
+            }
+        }
+    };
+}
+
 // Update visited stops chart
 function updateVisitedStopsChart(data, rides) {
     const chartElement = document.getElementById('visitedStopsChart');
@@ -798,75 +982,7 @@ function updateVisitedStopsChart(data, rides) {
         return;
     }
 
-    charts.visitedStops = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: top10Data.map(item => shortenStationName(item.stop_name)),
-            datasets: [{
-                label: 'Visits',
-                data: top10Data.map(item => item.count),
-                backgroundColor: top10Data.map(item => item.color),
-                borderColor: top10Data.map(item => item.color),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        title: function (tooltipItems) {
-                            const index = tooltipItems[0].dataIndex;
-                            const item = top10Data[index];
-                            return item.stop_name; // Use full name in tooltip
-                        },
-                        afterTitle: function (tooltipItems) {
-                            const index = tooltipItems[0].dataIndex;
-                            const item = top10Data[index];
-                            if (item.lines && item.lines.length > 0) {
-                                const lineDisplay = item.lines.join('/');
-                                return `Lines: ${lineDisplay}`;
-                            }
-                            return '';
-                        },
-                        label: function (context) {
-                            return `Visits: ${context.parsed.y}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#e0e0e0',
-                        stepSize: 1,
-                        callback: function (value) {
-                            return Number.isInteger(value) ? value : '';
-                        }
-                    },
-                    grid: {
-                        color: '#333'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#e0e0e0',
-                        maxRotation: 45
-                    },
-                    grid: {
-                        color: '#333'
-                    }
-                }
-            }
-        }
-    });
-
-    console.log('✅ Visited stops chart created successfully');
+    charts.visitedStops = new Chart(ctx, stopsBarConfig(top10Data, 'Visits'));
 }
 
 // Update transfer stops chart
@@ -910,73 +1026,7 @@ function updateTransferStopsChart(data, rides) {
         return;
     }
 
-    charts.transferStops = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: top10Data.map(item => shortenStationName(item.stop_name)),
-            datasets: [{
-                label: 'Transfers',
-                data: top10Data.map(item => item.count),
-                backgroundColor: top10Data.map(item => item.color),
-                borderColor: top10Data.map(item => item.color),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        title: function (tooltipItems) {
-                            const index = tooltipItems[0].dataIndex;
-                            const item = top10Data[index];
-                            return item.stop_name; // Use full name in tooltip
-                        },
-                        afterTitle: function (tooltipItems) {
-                            const index = tooltipItems[0].dataIndex;
-                            const item = top10Data[index];
-                            if (item.lines && item.lines.length > 0) {
-                                const lineDisplay = item.lines.join('/');
-                                return `Lines: ${lineDisplay}`;
-                            }
-                            return '';
-                        },
-                        label: function (context) {
-                            return `Transfers: ${context.parsed.y}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#e0e0e0',
-                        stepSize: 1,
-                        callback: function (value) {
-                            return Number.isInteger(value) ? value : '';
-                        }
-                    },
-                    grid: {
-                        color: '#333'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#e0e0e0',
-                        maxRotation: 45
-                    },
-                    grid: {
-                        color: '#333'
-                    }
-                }
-            }
-        }
-    });
+    charts.transferStops = new Chart(ctx, stopsBarConfig(top10Data, 'Transfers'));
 
     console.log('✅ Transfer stops chart created successfully');
 }
@@ -1041,27 +1091,25 @@ function updateBoroughChart(rides) {
     }
 
     charts.boroughChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: boroughData.map(item => item.borough),
             datasets: [{
                 data: boroughData.map(item => item.count),
                 backgroundColor: boroughData.map(item => item.color),
-                borderColor: '#333',
-                borderWidth: 2
+                hoverBackgroundColor: chartTheme.hover
             }]
         },
+        plugins: [doughnutCenter],
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '66%',
+            layout: { padding: 8 },
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: {
-                        color: '#e0e0e0',
-                        padding: 20,
-                        usePointStyle: true
-                    }
+                    labels: { padding: 18 }
                 },
                 tooltip: {
                     callbacks: {
@@ -1121,40 +1169,30 @@ function updatePopularLinesChart(data) {
                 label: 'Rides',
                 data: top10Data.map(item => item.ride_count || 0),
                 backgroundColor: top10Data.map(item => item.color),
-                borderColor: top10Data.map(item => item.color),
-                borderWidth: 1
+                hoverBackgroundColor: chartTheme.hover,
+                barPercentage: 0.72,
+                categoryPercentage: 0.92
             }]
         },
+        // The line bullet replaces the category label, so the axis labels are hidden.
+        plugins: [barValueLabels, lineBullets],
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { left: 34, right: 8 } },
             plugins: {
-                legend: {
-                    display: false
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: items => `Line ${items[0].label}`,
+                        label: context => `Rides: ${context.parsed.x}`
+                    }
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#e0e0e0',
-                        stepSize: 1,
-                        callback: function (value) {
-                            return Number.isInteger(value) ? value : '';
-                        }
-                    },
-                    grid: {
-                        color: '#333'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#e0e0e0'
-                    },
-                    grid: {
-                        color: '#333'
-                    }
-                }
+                x: chartValueScale(),
+                y: chartCategoryScale({ ticks: { display: false } })
             }
         }
     });
@@ -1287,25 +1325,22 @@ function updateRidesOverTimeChart(rides) {
     if (currentFilter === 'all' || currentFilter === 'custom') {
         const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        // One color per year, cycling through a palette
+        // One colour per year, drawn from the site palette
         const yearPalette = [
-            '#4a9eff', '#4CAF50', '#FF9800', '#9C27B0',
-            '#F44336', '#00BCD4', '#FFEB3B', '#FF5722',
-            '#607D8B', '#795548'
+            '#3dff5c', '#5563ff', '#ffb8f2', '#e8e4d8', '#ff6319',
+            '#00add0', '#fccc0a', '#b933ad', '#8a877d', '#ee352e'
         ];
 
         const sortedYears = Object.keys(perYearData).map(Number).sort((a, b) => a - b);
 
-        const datasets = sortedYears.map((year, i) => {
-            const col = yearPalette[i % yearPalette.length];
-            return {
-                label: String(year),
-                data: perYearData[year],
-                backgroundColor: col,
-                borderColor: col,
-                borderWidth: 1
-            };
-        });
+        const datasets = sortedYears.map((year, i) => ({
+            label: String(year),
+            data: perYearData[year],
+            backgroundColor: yearPalette[i % yearPalette.length],
+            hoverBackgroundColor: chartTheme.hover,
+            barPercentage: 0.85,
+            categoryPercentage: 0.9
+        }));
 
         charts.ridesOverTime = new Chart(ctx, {
             type: 'bar',
@@ -1313,29 +1348,19 @@ function updateRidesOverTimeChart(rides) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { color: '#e0e0e0', usePointStyle: true }
+                    legend: { display: true, position: 'top', align: 'end' },
+                    tooltip: {
+                        displayColors: true,
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        boxPadding: 4
                     }
                 },
                 scales: {
-                    x: {
-                        stacked: true,
-                        ticks: { color: '#e0e0e0' },
-                        grid: { color: '#333' }
-                    },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true,
-                        ticks: {
-                            color: '#e0e0e0',
-                            stepSize: 1,
-                            callback: v => Number.isInteger(v) ? v : ''
-                        },
-                        grid: { color: '#333' }
-                    }
+                    x: chartCategoryScale({ stacked: true }),
+                    y: chartValueScale({ stacked: true })
                 }
             }
         });
@@ -1374,32 +1399,22 @@ function updateRidesOverTimeChart(rides) {
                 label: 'Rides',
                 data: values,
                 backgroundColor: colors.primary,
-                borderColor: colors.primary,
-                borderWidth: 1
+                hoverBackgroundColor: chartTheme.hover,
+                barPercentage: 0.7,
+                categoryPercentage: 0.9
             }]
         },
+        plugins: [barValueLabels],
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 18 } },
             plugins: {
                 legend: { display: false }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#e0e0e0',
-                        stepSize: 1,
-                        callback: function (value) {
-                            return Number.isInteger(value) ? value : '';
-                        }
-                    },
-                    grid: { color: '#333' }
-                },
-                x: {
-                    ticks: { color: '#e0e0e0', maxRotation: 45 },
-                    grid: { color: '#333' }
-                }
+                y: chartValueScale(),
+                x: chartCategoryScale()
             }
         }
     });
