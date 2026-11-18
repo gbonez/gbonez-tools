@@ -150,26 +150,44 @@
     const doneSection = document.getElementById('doneSection');
     const stage = document.getElementById('stage');
     const train = document.getElementById('train');
+    const stamp = stage.querySelector('.stamp');
     const confirmation = document.getElementById('confirmation');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let stopsByLine = {};
-    let trainArrived = false;
+    let trainReady = false;
     let rideRecorded = false;
+    let arrivalTimer;
 
-    function departWhenReady() {
-      if (rideRecorded && (trainArrived || reducedMotion.matches)) {
-        stage.classList.add('depart');
-      }
+    function stampWhenReady() {
+      if (!rideRecorded || (!trainReady && !reducedMotion.matches)) return;
+      stage.classList.add('recorded');
+      if (reducedMotion.matches) stage.classList.add('depart');
     }
 
     train.addEventListener('animationend', event => {
       if (event.animationName === 'arrive') {
-        trainArrived = true;
-        departWhenReady();
+        arrivalTimer = setTimeout(() => {
+          trainReady = true;
+          stampWhenReady();
+        }, 1000);
       }
     });
-    reducedMotion.addEventListener('change', departWhenReady);
+    stamp.addEventListener('animationend', event => {
+      if (event.animationName === 'stamp') stage.classList.add('depart');
+    });
+    reducedMotion.addEventListener('change', () => {
+      if (!stage.classList.contains('run')) return;
+      clearTimeout(arrivalTimer);
+      if (reducedMotion.matches) {
+        stampWhenReady();
+      } else if (!stage.classList.contains('recorded')) {
+        trainReady = false;
+        stage.classList.remove('run');
+        void stage.offsetWidth;
+        stage.classList.add('run');
+      }
+    });
 
     function setMessage(text, kind) {
       messageDiv.textContent = text;
@@ -250,7 +268,8 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting...';
       setMessage('', '');
-      trainArrived = false;
+      clearTimeout(arrivalTimer);
+      trainReady = false;
       rideRecorded = false;
       stage.classList.remove('run', 'recorded', 'depart');
       stage.style.setProperty('--line', window.mtaColor(line));
@@ -281,6 +300,7 @@
         const result = await res.json();
 
         if (!res.ok) {
+          clearTimeout(arrivalTimer);
           doneSection.hidden = true;
           stage.classList.remove('run', 'recorded', 'depart');
           formSection.hidden = false;
@@ -290,6 +310,7 @@
         playConfirmation(result.ride || { line, board_stop: boardStop, depart_stop: departStop, date });
       } catch (err) {
         console.error(err);
+        clearTimeout(arrivalTimer);
         doneSection.hidden = true;
         stage.classList.remove('run', 'recorded', 'depart');
         formSection.hidden = false;
@@ -321,13 +342,13 @@
       document.getElementById('doneTitle').textContent = 'Ride recorded';
       document.getElementById('stageStatus').textContent = '+ Recorded';
       confirmation.hidden = false;
-      stage.classList.add('recorded');
       rideRecorded = true;
-      departWhenReady();
+      stampWhenReady();
       document.getElementById('againBtn').focus({ preventScroll: true });
     }
 
     document.getElementById('againBtn').addEventListener('click', () => {
+      clearTimeout(arrivalTimer);
       doneSection.hidden = true;
       stage.classList.remove('run', 'recorded', 'depart');
       formSection.hidden = false;

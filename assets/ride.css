@@ -178,11 +178,7 @@
 }
 
 .stage.run .wheel {
-  animation: spin 0.25s linear 6;
-}
-
-.stage.run.depart .wheel {
-  animation: spin 0.25s linear 5;
+  animation: spin 0.25s linear infinite;
 }
 
 .stage.recorded .stamp {
