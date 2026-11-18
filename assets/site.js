@@ -19,6 +19,14 @@
     return /^[0-9A-Z]X$/.test(line) ? line[0] : line;
   }
 
+  window.mtaColor = function (line) {
+    return MTA_COLORS[baseLine(String(line == null ? '' : line).toUpperCase())] || '#808183';
+  };
+
+  window.mtaTextColor = function (line) {
+    return DARK_TEXT.has(baseLine(String(line == null ? '' : line).toUpperCase())) ? '#0b0b0b' : '#ffffff';
+  };
+
   window.mtaBullet = function (line) {
     const label = String(line == null ? '' : line).replace(/[^0-9A-Za-z]/g, '').toUpperCase();
     if (!label) return '';

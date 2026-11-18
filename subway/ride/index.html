@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Record Ride — Subway Tracker</title>
+  <link rel="icon" type="image/x-icon" href="../../forrest.ico">
+  <link rel="stylesheet" href="../../assets/site.css">
+  <link rel="stylesheet" href="../../assets/ride.css">
+  <script src="../../assets/theme.js"></script>
+</head>
+
+<body>
+
+  <header class="top">
+    <a class="top-id" href="../">Subway Tracker</a>
+    <nav class="nav" aria-label="Subway">
+      <a href="../">Index</a>
+      <a href="." aria-current="page">New ride</a>
+      <a href="../rides/">Rides</a>
+      <a href="../favorites/">Favorites</a>
+      <a href="../stats/">Statistics</a>
+    </nav>
+    <span class="clock" data-clock>NYC --:--:--</span>
+  </header>
+
+  <main class="page">
+
+    <section class="sect">
+      <h1 class="display display--md">Record<br>a ride</h1>
+    </section>
+
+    <section class="sect" id="formSection">
+      <div class="sect-head">
+        <h2>New entry</h2>
+        <span class="label muted">01 / Form</span>
+      </div>
+
+      <form class="form-grid" id="rideForm" novalidate>
+        <div>
+          <label for="line">Line</label>
+          <div class="stop-row">
+            <select id="line">
+              <option value="">Select a line</option>
+            </select>
+            <span id="lineBullet" style="font-size: 1.5rem;"></span>
+          </div>
+        </div>
+
+        <div>
+          <label for="boardStop">Boarding stop</label>
+          <div class="stop-row">
+            <select id="boardStop">
+              <option value="">Select boarding stop</option>
+            </select>
+            <button type="button" class="swap-btn" id="swapBtn" title="Swap boarding and departing stops"
+              aria-label="Swap boarding and departing stops">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+                <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label for="departStop">Departing stop</label>
+          <select id="departStop">
+            <option value="">Select departing stop</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="rideDate">Date</label>
+          <input type="date" id="rideDate" />
+        </div>
+
+        <div class="wide">
+          <label class="check" for="transferred">
+            <input type="checkbox" id="transferred" />
+            Did you transfer to another line at your departure stop?
+          </label>
+        </div>
+
+        <div class="wide actions">
+          <button type="submit" id="submitButton" class="primary">Submit Ride</button>
+          <a href="../rides/" class="label">View all rides →</a>
+        </div>
+      </form>
+
+      <div id="message" class="msg" role="status"></div>
+    </section>
+
+    <section class="sect" id="doneSection" hidden>
+      <div class="sect-head">
+        <h2>Ride recorded</h2>
+        <span class="label muted">02 / Confirmation</span>
+      </div>
+
+      <div class="stage" id="stage" aria-hidden="true">
+        <div class="stage-sky"></div>
+        <div class="stage-head"><span>+ Now arriving</span><span id="stageNo">Fig. 01</span></div>
+        <div class="sign" id="sign"><span id="signBullet"></span><span id="signName"></span></div>
+        <div class="stamp">Recorded<b id="stampNo">#0</b></div>
+        <div class="rails"></div>
+
+        <div class="train" id="train">
+          <span class="speed"></span>
+          <div class="car">
+            <div class="windows">
+              <i class="win"></i>
+              <span class="door"><i class="door-panel door-panel--l"></i><i class="door-panel door-panel--r"></i><i class="rider"></i></span>
+              <i class="win face"></i>
+              <i class="win face face--b"></i>
+              <span class="door"><i class="door-panel door-panel--l"></i><i class="door-panel door-panel--r"></i></span>
+              <i class="win"></i>
+            </div>
+            <div class="band"><span class="train-bullet" id="trainBullet"></span></div>
+            <i class="wheel"></i><i class="wheel"></i><i class="wheel"></i><i class="wheel"></i>
+            <i class="puff"></i><i class="puff"></i><i class="puff"></i><i class="puff"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="confirm">
+        <p class="label muted" id="confirmMeta">Ride #0</p>
+        <p class="confirm-route" id="confirmRoute"></p>
+        <div class="actions">
+          <button type="button" id="againBtn" class="primary">Add another ride</button>
+          <a href="../rides/" class="label">View all rides →</a>
+        </div>
+      </div>
+      <p class="sr" id="live" aria-live="polite"></p>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <span>Tools just for me to use :)</span>
+    <a href="../">← Subway index</a>
+  </footer>
+
+  <script src="../../assets/site.js"></script>
+  <script>
+    const backendUrl = 'https://subway-tracker-production.up.railway.app';
+
+    const lineSelect = document.getElementById('line');
+    const boardStopSelect = document.getElementById('boardStop');
+    const departStopSelect = document.getElementById('departStop');
+    const dateInput = document.getElementById('rideDate');
+    const transferBox = document.getElementById('transferred');
+    const messageDiv = document.getElementById('message');
+    const submitBtn = document.getElementById('submitButton');
+    const formSection = document.getElementById('formSection');
+    const doneSection = document.getElementById('doneSection');
+    const stage = document.getElementById('stage');
+
+    let stopsByLine = {};
+
+    function setMessage(text, kind) {
+      messageDiv.textContent = text;
+      messageDiv.className = kind ? `msg ${kind}` : 'msg';
+    }
+
+    function todayInNY() {
+      // en-CA formats as YYYY-MM-DD, which is what a date input wants.
+      return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+    }
+
+    function fillStops(line) {
+      const stops = stopsByLine[line] || [];
+      [boardStopSelect, departStopSelect].forEach(select => {
+        select.innerHTML = '<option value="">Select stop</option>';
+        stops.forEach(stop => {
+          const opt = document.createElement('option');
+          opt.value = stop;
+          opt.textContent = stop;
+          select.appendChild(opt);
+        });
+      });
+    }
+
+    async function validatePassword(operation = 'modify data') {
+      if (localStorage.getItem('gbonez_trusted') === 'true') return true;
+
+      const password = prompt(`Please enter the admin password to ${operation}:`);
+      if (!password) return false;
+
+      try {
+        const response = await fetch(`${backendUrl}/validate-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        if (response.ok) {
+          localStorage.setItem('gbonez_trusted', 'true');
+          return true;
+        }
+        const errorData = await response.json();
+        alert(`❌ ${errorData.detail || 'Invalid password'}`);
+        return false;
+      } catch (error) {
+        console.error('Password validation error:', error);
+        alert(`❌ Error validating password: ${error.message}`);
+        return false;
+      }
+    }
+
+    lineSelect.addEventListener('change', () => {
+      document.getElementById('lineBullet').innerHTML = lineSelect.value ? window.mtaBullet(lineSelect.value) : '';
+      fillStops(lineSelect.value);
+    });
+
+    document.getElementById('swapBtn').addEventListener('click', () => {
+      const board = boardStopSelect.value;
+      boardStopSelect.value = departStopSelect.value;
+      departStopSelect.value = board;
+    });
+
+    document.getElementById('rideForm').addEventListener('submit', async event => {
+      event.preventDefault();
+
+      const line = lineSelect.value;
+      const boardStop = boardStopSelect.value;
+      const departStop = departStopSelect.value;
+      const date = dateInput.value;
+
+      if (!line || !boardStop || !departStop || !date) {
+        setMessage('Please fill in every field.', 'warning');
+        return;
+      }
+
+      if (!(await validatePassword('add a new ride'))) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      setMessage('', '');
+
+      try {
+        const res = await fetch(`${backendUrl}/rides/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            line,
+            board_stop: boardStop,
+            depart_stop: departStop,
+            date,
+            transferred: transferBox.checked
+          })
+        });
+        const result = await res.json();
+
+        if (!res.ok) {
+          setMessage(`Error ${res.status}: ${result.detail || 'Unknown error'}`, 'error');
+          return;
+        }
+        playConfirmation(result.ride || { line, board_stop: boardStop, depart_stop: departStop, date });
+      } catch (err) {
+        console.error(err);
+        setMessage(`Error submitting ride: ${err.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Ride';
+      }
+    });
+
+    // The train takes the line's own colour; the stamp and route text fill in around it.
+    function playConfirmation(ride) {
+      stage.style.setProperty('--line', window.mtaColor(ride.line));
+      stage.style.setProperty('--line-text', window.mtaTextColor(ride.line));
+
+      const no = ride.ride_number != null ? `#${ride.ride_number}` : '';
+      document.getElementById('trainBullet').innerHTML = window.mtaBullet(ride.line);
+      document.getElementById('signBullet').innerHTML = window.mtaBullet(ride.line);
+      document.getElementById('signName').textContent = ride.depart_stop;
+      document.getElementById('stampNo').textContent = no || '✓';
+      document.getElementById('stageNo').textContent = no ? `Ride ${no}` : 'Ride';
+      document.getElementById('confirmMeta').textContent = `${no ? `Ride ${no} · ` : ''}${ride.date}`;
+
+      const route = document.getElementById('confirmRoute');
+      route.innerHTML = window.mtaBullet(ride.line);
+      route.append(`${ride.board_stop} → ${ride.depart_stop}`);
+
+      document.getElementById('live').textContent =
+        `Ride ${no} recorded: ${ride.line} train from ${ride.board_stop} to ${ride.depart_stop}.`;
+
+      formSection.hidden = true;
+      doneSection.hidden = false;
+      // Re-adding the class restarts every animation from the top.
+      stage.classList.remove('run');
+      void stage.offsetWidth;
+      stage.classList.add('run');
+      document.getElementById('againBtn').focus({ preventScroll: true });
+    }
+
+    document.getElementById('againBtn').addEventListener('click', () => {
+      doneSection.hidden = true;
+      stage.classList.remove('run');
+      formSection.hidden = false;
+
+      lineSelect.value = '';
+      document.getElementById('lineBullet').innerHTML = '';
+      fillStops('');
+      transferBox.checked = false;
+      dateInput.value = todayInNY();
+      setMessage('', '');
+      lineSelect.focus();
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      dateInput.value = todayInNY();
+      try {
+        const response = await fetch('../../data/stops.json');
+        stopsByLine = await response.json();
+      } catch (error) {
+        console.error('Failed to load subway data:', error);
+        setMessage('Could not load the station list. Try refreshing.', 'error');
+      }
+      Object.keys(stopsByLine).sort().forEach(line => {
+        const opt = document.createElement('option');
+        opt.value = line;
+        opt.textContent = line;
+        lineSelect.appendChild(opt);
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -94,6 +94,17 @@ body {
   font-weight: 700;
 }
 
+/* A readout can be a link (back to the pond). */
+.hud a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.hud a:hover {
+  color: var(--mint);
+}
+
 [data-clock] {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -133,18 +144,38 @@ body {
 }
 
 .bubble--subway {
-  --x: 33%;
-  --y: 45%;
+  --x: 30%;
+  --y: 38%;
 }
 
 .bubble--forrestle {
   --x: 68%;
-  --y: 58%;
+  --y: 34%;
   --s: 9rem;
   --c1: #fff4fd;
   --c2: #ffb8f2;
   --c3: #cf6fbf;
   --glow: rgba(255, 184, 242, 0.24);
+}
+
+.bubble--photo {
+  --x: 38%;
+  --y: 72%;
+  --s: 10.75rem;
+  --c1: #f3f5ff;
+  --c2: #aab4ff;
+  --c3: #5f6bdc;
+  --glow: rgba(170, 180, 255, 0.26);
+}
+
+.bubble--socials {
+  --x: 72%;
+  --y: 68%;
+  --s: 9.25rem;
+  --c1: #fffaf0;
+  --c2: #ffd9a0;
+  --c3: #d9984a;
+  --glow: rgba(255, 217, 160, 0.24);
 }
 
 .bubble:hover,
@@ -245,27 +276,45 @@ body {
 /* Tall, narrow screens: start the bubbles apart so they never overlap. */
 @media (max-aspect-ratio: 4/5) {
   .bubble--subway {
-    --x: 42%;
-    --y: 36%;
+    --x: 36%;
+    --y: 20%;
   }
 
   .bubble--forrestle {
-    --x: 60%;
-    --y: 64%;
+    --x: 66%;
+    --y: 38%;
+  }
+
+  .bubble--photo {
+    --x: 34%;
+    --y: 60%;
+  }
+
+  .bubble--socials {
+    --x: 66%;
+    --y: 80%;
   }
 }
 
 @media (max-width: 480px) {
   .bubble {
-    --s: 8.75rem;
+    --s: 7.75rem;
   }
 
   .bubble--forrestle {
-    --s: 8rem;
+    --s: 7.25rem;
+  }
+
+  .bubble--photo {
+    --s: 8.75rem;
+  }
+
+  .bubble--socials {
+    --s: 7.5rem;
   }
 
   .bubble-name {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .hud-hint {

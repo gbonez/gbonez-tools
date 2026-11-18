@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#121315">
+  <meta name="description" content="Where to find gbonez.">
+  <title>Socials — gbonez.org</title>
+  <link rel="icon" type="image/x-icon" href="/forrest.ico">
+  <link rel="stylesheet" href="/assets/pond.css">
+  <link rel="stylesheet" href="/assets/socials.css">
+</head>
+
+<body>
+
+  <canvas id="pond" aria-hidden="true"></canvas>
+
+  <header class="hud">
+    <a class="hud-id" href="/">← gbonez.org</a>
+    <span data-clock>NYC --:--:--</span>
+  </header>
+
+  <main class="pass-wrap">
+    <article class="pass" aria-labelledby="passName">
+
+      <div class="pass-photo" aria-hidden="true">
+        <span class="pass-tag">ID / 001</span>
+        <span class="pass-bubble"></span>
+      </div>
+
+      <div class="pass-rule" aria-hidden="true"></div>
+
+      <div class="pass-main">
+        <div class="pass-top">
+          <h1 class="pass-name" id="passName">gbonez</h1>
+          <p class="pass-based">Based <span>in NYC</span></p>
+        </div>
+
+        <p class="pass-role">Tools just for me to use :)</p>
+
+        <div class="pass-links">
+          <p class="pass-links-head">↘ Links_</p>
+          <ul>
+            <li><a href="https://www.instagram.com/ice.filmer/" target="_blank" rel="noopener noreferrer">→ Instagram_</a></li>
+            <li><a href="https://letterboxd.com/gbonez100/" target="_blank" rel="noopener noreferrer">→ Letterboxd_</a></li>
+            <li><a href="/">→ Home_</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pass-rule" aria-hidden="true"></div>
+
+      <svg class="pass-barcode" id="barcode" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"
+        focusable="false"></svg>
+    </article>
+  </main>
+
+  <footer class="hud hud--bottom">
+    <span>Socials</span>
+    <span class="hud-hint">Touch the water</span>
+  </footer>
+
+  <script src="/assets/site.js"></script>
+  <script src="/assets/pond.js"></script>
+  <script>
+    // A decorative barcode, seeded from the domain so it never changes between visits.
+    // Bars stack down the side of the pass, and across the bottom once the pass turns portrait.
+    (function () {
+      const svg = document.getElementById('barcode');
+      let seed = 0;
+      for (const ch of 'gbonez.org') seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+      const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+
+      const bars = [];
+      let pos = 0;
+      while (pos < 100) {
+        const size = Math.min(1.4 + rand() * 3.4, 100 - pos);
+        bars.push([pos, size]);
+        pos += size + 0.9 + rand() * 1.5;
+      }
+
+      const mobile = window.matchMedia('(max-width: 640px)');
+      function draw() {
+        svg.innerHTML = bars.map(([p, s]) => mobile.matches
+          ? `<rect x="${p.toFixed(2)}" y="0" width="${s.toFixed(2)}" height="100" fill="#0b0b0b" />`
+          : `<rect x="0" y="${p.toFixed(2)}" width="100" height="${s.toFixed(2)}" fill="#0b0b0b" />`
+        ).join('');
+      }
+      draw();
+      mobile.addEventListener('change', draw);
+    })();
+  </script>
+</body>
+
+</html>

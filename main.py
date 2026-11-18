@@ -18,6 +18,7 @@ from controllers.ride_controller import (
     create_ride,
     parse_url,
     get_rides,
+    update_ride,
     delete_ride,
     delete_all_rides,
     export_rides_csv,
@@ -56,7 +57,7 @@ def create_app() -> FastAPI:
             "*"  # Allow all origins for development
         ],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["*"],
     )
     
@@ -78,6 +79,7 @@ def register_routes(app: FastAPI):
     # Ride management routes
     app.post("/rides/")(create_ride)
     app.get("/rides/")(get_rides)
+    app.put("/rides/{ride_id}")(update_ride)
     app.delete("/rides/{ride_id}")(delete_ride)
     app.delete("/rides/")(delete_all_rides)
     app.get("/export-csv/")(export_rides_csv)

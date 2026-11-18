@@ -261,6 +261,40 @@ async def get_rides(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch rides: {str(e)}")
 
+async def update_ride(ride_id: int, ride: RideCreate, db: Session = Depends(get_db)):
+    """Update a specific ride by ID (the ride number is kept)"""
+    try:
+        db_ride = db.query(SubwayRide).filter(SubwayRide.id == ride_id).first()
+
+        if not db_ride:
+            raise HTTPException(status_code=404, detail=f"Ride with ID {ride_id} not found")
+
+        db_ride.line = ride.line
+        db_ride.board_stop = ride.board_stop
+        db_ride.depart_stop = ride.depart_stop
+        db_ride.date = ride.date
+        db_ride.transferred = ride.transferred
+        db.commit()
+        db.refresh(db_ride)
+
+        return {
+            "message": f"Updated ride #{db_ride.ride_number} successfully!",
+            "ride": {
+                "id": db_ride.id,
+                "ride_number": db_ride.ride_number,
+                "line": db_ride.line,
+                "board_stop": db_ride.board_stop,
+                "depart_stop": db_ride.depart_stop,
+                "date": db_ride.date.isoformat(),
+                "transferred": db_ride.transferred
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to update ride: {str(e)}")
+
 async def delete_ride(ride_id: int, db: Session = Depends(get_db)):
     """Delete a specific ride by ID"""
     try:

@@ -719,6 +719,146 @@ td:last-child {
   letter-spacing: 0.06em;
 }
 
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ───────── rides: search + inline edit ───────── */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem var(--gutter);
+  align-items: end;
+}
+
+.toolbar .field {
+  min-width: 10rem;
+}
+
+.toolbar .grow {
+  flex: 1 1 18rem;
+}
+
+mark {
+  background: var(--green);
+  color: var(--on-accent);
+  padding: 0 0.1em;
+}
+
+.msg.pad-msg {
+  margin-inline: var(--gutter);
+}
+
+.row-actions {
+  white-space: nowrap;
+}
+
+.row-actions button + button {
+  margin-left: 0.9rem;
+}
+
+.row-actions button.primary,
+.row-actions button.ghost {
+  padding: 0.45rem 0.65rem;
+  font-size: 0.68rem;
+}
+
+.row-actions button.primary + button.ghost {
+  margin-left: 0.4rem;
+}
+
+/* Edit mode: the controls need room, so the row gets fixed minimums and the table scrolls sideways. */
+tr.editing td:nth-child(2) { min-width: 6rem; }
+tr.editing td:nth-child(3),
+tr.editing td:nth-child(4) { min-width: 11rem; }
+tr.editing td:nth-child(5) { min-width: 9.5rem; }
+
+button.link.edit:hover:not(:disabled) {
+  background: var(--blue);
+  color: var(--on-blue);
+}
+
+.empty-cell {
+  padding: 2rem var(--gutter);
+  text-align: center;
+  color: var(--ink-2);
+}
+
+tbody tr.editing,
+tbody tr.editing:hover {
+  background: var(--green);
+  color: var(--on-accent);
+}
+
+/* The green row stays green in night mode, so its controls use fixed light-on-dark colours. */
+tr.editing td select,
+tr.editing td input[type="date"] {
+  padding: 0.4rem 0.5rem;
+  padding-right: 1.6rem;
+  font-size: 0.78rem;
+  min-width: 0;
+  width: 100%;
+  color: #0b0b0b;
+  background-color: #fbfaf6;
+  border-color: #0b0b0b;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] tr.editing td select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M0 0h12L6 8z' fill='%230b0b0b'/%3E%3C/svg%3E");
+}
+
+tr.editing td input[type="date"] {
+  padding-right: 0.5rem;
+}
+
+tr.editing td input[type="checkbox"] {
+  margin: 0;
+  vertical-align: middle;
+  background: #fbfaf6;
+  border-color: #0b0b0b;
+}
+
+tr.editing td input[type="checkbox"]:checked {
+  background: #0b0b0b;
+  color: #3dff5c;
+}
+
+tr.editing td select:hover,
+tr.editing td input:hover {
+  background-color: var(--pink);
+  color: #0b0b0b;
+}
+
+tr.editing .row-actions button.primary {
+  background: #0b0b0b;
+  border-color: #0b0b0b;
+  color: #3dff5c;
+}
+
+tr.editing .row-actions button.primary:hover:not(:disabled) {
+  background: #fbfaf6;
+  border-color: #0b0b0b;
+  color: #0b0b0b;
+}
+
+tr.editing .row-actions button.ghost {
+  background: transparent;
+  border-color: #0b0b0b;
+  color: #0b0b0b;
+}
+
+tr.editing .row-actions button.ghost:hover:not(:disabled) {
+  background: #0b0b0b;
+  color: #3dff5c;
+}
+
 /* ───────── stats ───────── */
 
 .filters {

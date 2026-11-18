@@ -1,0 +1,237 @@
+/* 404 — the lost page. Builds on pond.css (dark pond, bubbles, corner readouts). */
+
+.bubble--home {
+  --x: 64%;
+  --y: 62%;
+  --s: 9.5rem;
+}
+
+.lost-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 4rem 1.25rem 5.5rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.lost-404 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: clamp(7rem, 25vw, 19rem);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: var(--bone);
+}
+
+.four {
+  display: inline-block;
+  transform-origin: 50% 92%;
+  animation: sway 5.2s ease-in-out infinite;
+}
+
+.four:last-child {
+  animation-delay: -2.4s;
+  animation-direction: reverse;
+}
+
+.eye {
+  display: inline-block;
+  width: 0.88em;
+  height: 1.05em;
+  margin: 0 0.02em;
+  transform-origin: 50% 90%;
+  animation: sway 4.4s ease-in-out -1s infinite;
+}
+
+.eye svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: url(#boil);
+}
+
+.sclera {
+  fill: #f1ede1;
+}
+
+.rim,
+.brow {
+  fill: none;
+  stroke: var(--bone);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.rim {
+  stroke: #0b0b0b;
+  stroke-opacity: 0.55;
+}
+
+.pupil {
+  fill: #0b0b0b;
+}
+
+.glint {
+  fill: #ffffff;
+}
+
+.lid {
+  fill: #d6d1c2;
+}
+
+.lost-title {
+  margin-top: 1.4rem;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4.4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.lost-sub {
+  margin-top: 0.9rem;
+  max-width: 34ch;
+  font: 500 0.78rem/1.5 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+/* ───────── the tiny man ───────── */
+
+.doodle {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.leash {
+  fill: none;
+  stroke: var(--bone);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.knot {
+  fill: var(--bone);
+}
+
+.person path,
+.person circle,
+.person ellipse {
+  stroke: var(--bone);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.person .skin,
+.person .leg,
+.person .arm,
+.person .far-arm {
+  fill: none;
+}
+
+.person .leg {
+  stroke-width: 4.2;
+}
+
+.person .jacket {
+  fill: var(--pink);
+}
+
+.person .head {
+  fill: #121315;
+}
+
+.person .hand {
+  fill: var(--bone);
+  stroke-width: 1.5;
+}
+
+.person .dot {
+  fill: var(--bone);
+  stroke: none;
+}
+
+.person .mouth {
+  fill: var(--bone);
+  stroke: none;
+}
+
+.person .alarm path {
+  fill: none;
+  stroke-width: 2.4;
+  animation: alarm 0.7s steps(1) infinite;
+}
+
+.person .alarm path:nth-child(2) {
+  animation-delay: -0.23s;
+}
+
+.person .alarm path:nth-child(3) {
+  animation-delay: -0.46s;
+}
+
+.say {
+  font: 700 11px var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--bone);
+}
+
+@keyframes sway {
+
+  0%,
+  100% {
+    transform: rotate(-2.2deg);
+  }
+
+  50% {
+    transform: rotate(2.2deg) translateY(-0.02em);
+  }
+}
+
+@keyframes alarm {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .four,
+  .eye,
+  .person .alarm path {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .bubble--home {
+    --s: 7.75rem;
+  }
+
+  .lost-sub {
+    font-size: 0.7rem;
+  }
+}
