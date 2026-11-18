@@ -1,7 +1,7 @@
 /*
   gbonez.org home — the pond.
-  A dark field of stippled dots; the pointer ripples it, and the links float on it.
-  Palette and type follow byotone.com's grain + mint, with the site's mono labels.
+  A dark field of stippled dots; the pointer ripples it, and the links drift on it
+  as glossy, halftone-shaded bubbles. Palette follows byotone.com's grain + mint.
 */
 
 :root {
@@ -12,6 +12,25 @@
   --pink: #ffb8f2;
   --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+/* Registered so the bubble colours can ease between rest and hover. */
+@property --c1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f4fff9;
+}
+
+@property --c2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #9dffc4;
+}
+
+@property --c3 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #3fbf86;
 }
 
 * {
@@ -80,7 +99,7 @@ body {
   white-space: nowrap;
 }
 
-/* ───────── lilypads ───────── */
+/* ───────── bubbles ───────── */
 
 .water {
   position: fixed;
@@ -89,10 +108,13 @@ body {
   pointer-events: none;
 }
 
-.pad {
+/* Start positions only: the script takes over and lets them roam. */
+.bubble {
   --s: 10rem;
-  --notch: 18deg;
-  --rot: 0deg;
+  --c1: #f4fff9;
+  --c2: #9dffc4;
+  --c3: #3fbf86;
+  --glow: rgba(157, 255, 196, 0.26);
 
   position: absolute;
   left: var(--x);
@@ -107,118 +129,143 @@ body {
   text-decoration: none;
   pointer-events: auto;
   will-change: transform;
+  transition: --c1 0.25s ease, --c2 0.25s ease, --c3 0.25s ease;
 }
 
-.pad--subway {
-  --x: 34%;
-  --y: 46%;
-  --notch: 78deg;
+.bubble--subway {
+  --x: 33%;
+  --y: 45%;
 }
 
-.pad--forrestle {
-  --x: 67%;
-  --y: 59%;
-  --s: 8.25rem;
-  --notch: 118deg;
+.bubble--forrestle {
+  --x: 68%;
+  --y: 58%;
+  --s: 9rem;
+  --c1: #fff4fd;
+  --c2: #ffb8f2;
+  --c3: #cf6fbf;
+  --glow: rgba(255, 184, 242, 0.24);
 }
 
-.pad-leaf {
+.bubble:hover,
+.bubble:focus-visible {
+  --c1: #ffffff;
+  --c2: #e8e4d8;
+  --c3: #a8a496;
+  --glow: rgba(232, 228, 216, 0.3);
+}
+
+.bubble-body {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  transform: rotate(calc(var(--notch) + var(--rot)));
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, var(--c1) 0, var(--c2) 38%, var(--c3) 100%);
+  box-shadow:
+    inset -8px -12px 24px rgba(0, 0, 0, 0.3),
+    inset 6px 8px 14px rgba(255, 255, 255, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.32),
+    0 0 48px var(--glow);
+  transition: scale 0.25s ease;
+  animation: wobble 11s ease-in-out infinite;
 }
 
-.pad-leaf .fill {
-  fill: var(--mint);
-  transition: fill 0.15s ease;
+/* Halftone shading that thickens away from the light, echoing the pond's dither. */
+.bubble-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(circle, rgba(11, 11, 11, 0.6) 0 1.1px, transparent 1.7px);
+  background-size: 6px 6px;
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(circle at 34% 30%, transparent 26%, #000 100%);
+  mask-image: radial-gradient(circle at 34% 30%, transparent 26%, #000 100%);
 }
 
-.pad-leaf .vein {
-  fill: none;
-  stroke: #0b0b0b;
-  stroke-opacity: 0.28;
-  stroke-width: 0.8;
-  stroke-linecap: round;
+.bubble:hover .bubble-body,
+.bubble:focus-visible .bubble-body {
+  scale: 1.06;
 }
 
-.pad:hover .fill,
-.pad:focus-visible .fill {
-  fill: var(--bone);
+/* The highlight stays put while the body squashes, so the light never changes. */
+.bubble-gloss {
+  position: absolute;
+  left: 17%;
+  top: 11%;
+  width: 34%;
+  height: 19%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  filter: blur(5px);
+  transform: rotate(-30deg);
+  pointer-events: none;
 }
 
-.pad:focus-visible {
-  outline: 2px dashed var(--mint);
-  outline-offset: 8px;
-}
-
-.pad-label {
+.bubble-name {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  text-align: center;
-  /* sits above the notch, which opens toward the bottom of the leaf */
-  transform: translateY(-17%);
-}
-
-.pad-num {
-  font: 500 0.68rem/1 var(--mono);
-  letter-spacing: 0.08em;
-}
-
-.pad-name {
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   line-height: 1;
   letter-spacing: -0.03em;
   text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-.pad-path {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  font: 500 0.68rem/1 var(--mono);
-  letter-spacing: 0.06em;
-  color: var(--dim);
-  white-space: nowrap;
-  transition: color 0.15s ease;
+.bubble:focus-visible {
+  outline: 2px dashed var(--mint);
+  outline-offset: 10px;
 }
 
-.pad:hover .pad-path,
-.pad:focus-visible .pad-path {
-  color: var(--bone);
+@keyframes wobble {
+
+  0%,
+  100% {
+    border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+  }
+
+  25% {
+    border-radius: 53% 47% 51% 49% / 49% 52% 48% 51%;
+  }
+
+  50% {
+    border-radius: 48% 52% 47% 53% / 52% 48% 53% 47%;
+  }
+
+  75% {
+    border-radius: 51% 49% 53% 47% / 47% 51% 49% 53%;
+  }
 }
 
-/* Tall, narrow screens: stack the pads so they never overlap. */
+@media (prefers-reduced-motion: reduce) {
+  .bubble-body {
+    animation: none;
+  }
+}
+
+/* Tall, narrow screens: start the bubbles apart so they never overlap. */
 @media (max-aspect-ratio: 4/5) {
-  .pad--subway {
+  .bubble--subway {
     --x: 42%;
     --y: 36%;
   }
 
-  .pad--forrestle {
-    --x: 62%;
+  .bubble--forrestle {
+    --x: 60%;
     --y: 64%;
   }
 }
 
 @media (max-width: 480px) {
-  .pad {
-    --s: 8.5rem;
+  .bubble {
+    --s: 8.75rem;
   }
 
-  .pad--forrestle {
-    --s: 7.5rem;
+  .bubble--forrestle {
+    --s: 8rem;
   }
 
-  .pad-name {
-    font-size: 0.98rem;
+  .bubble-name {
+    font-size: 1rem;
   }
 
   .hud-hint {

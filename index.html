@@ -16,16 +16,6 @@
 
   <canvas id="pond" aria-hidden="true"></canvas>
 
-  <!-- Shared dither texture for the lilypads. -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-    <defs>
-      <pattern id="pad-dots" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-        <circle cx="1.75" cy="1.75" r="1.05" fill="#0b0b0b" fill-opacity=".38" />
-        <circle cx="5.25" cy="5.25" r="1.05" fill="#0b0b0b" fill-opacity=".38" />
-      </pattern>
-    </defs>
-  </svg>
-
   <header class="hud">
     <span class="hud-id">gbonez.org</span>
     <span data-clock>NYC --:--:--</span>
@@ -33,30 +23,16 @@
 
   <main class="water">
 
-    <a class="pad pad--subway" href="/subway/" aria-label="Subway — a personal ride tracker">
-      <svg class="pad-leaf" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-        <path class="fill" d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" />
-        <path d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" fill="url(#pad-dots)" />
-        <path class="vein" d="M50 50 L18 24 M50 50 L10 55 M50 50 L28 88 M50 50 L66 94 M50 50 L82 78" />
-      </svg>
-      <span class="pad-label">
-        <span class="pad-num">01</span>
-        <span class="pad-name">Subway</span>
-      </span>
-      <span class="pad-path">/subway/</span>
+    <a class="bubble bubble--subway" href="/subway/" aria-label="Subway — a personal ride tracker">
+      <span class="bubble-body" aria-hidden="true"></span>
+      <span class="bubble-gloss" aria-hidden="true"></span>
+      <span class="bubble-name">Subway</span>
     </a>
 
-    <a class="pad pad--forrestle" href="/forrestle/" aria-label="Forrestle — a word game">
-      <svg class="pad-leaf" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-        <path class="fill" d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" />
-        <path d="M50 50 L91.7 30.6 A46 46 0 1 0 95.8 54 Z" fill="url(#pad-dots)" />
-        <path class="vein" d="M50 50 L18 24 M50 50 L10 55 M50 50 L28 88 M50 50 L66 94 M50 50 L82 78" />
-      </svg>
-      <span class="pad-label">
-        <span class="pad-num">02</span>
-        <span class="pad-name">Forrestle</span>
-      </span>
-      <span class="pad-path">/forrestle/</span>
+    <a class="bubble bubble--forrestle" href="/forrestle/" aria-label="Forrestle — a word game">
+      <span class="bubble-body" aria-hidden="true"></span>
+      <span class="bubble-gloss" aria-hidden="true"></span>
+      <span class="bubble-name">Forrestle</span>
     </a>
 
   </main>
