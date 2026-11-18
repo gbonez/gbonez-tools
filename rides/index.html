@@ -4,22 +4,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rides — Subway Tracker</title>
-  <link rel="icon" type="image/x-icon" href="../../forrest.ico">
-  <link rel="stylesheet" href="../../assets/site.css">
-  <script src="../../assets/theme.js"></script>
+  <title>The Ledger — Subway Tracker</title>
+  <link rel="icon" type="image/x-icon" href="/forrest.ico">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script src="/assets/theme.js"></script>
 </head>
 
 <body>
 
   <header class="top">
-    <a class="top-id" href="../">Subway Tracker</a>
+    <a class="top-id" href="/subway/">Subway Tracker</a>
     <nav class="nav" aria-label="Subway">
-      <a href="../">Index</a>
-      <a href="../ride/">New ride</a>
-      <a href="." aria-current="page">Rides</a>
-      <a href="../favorites/">Favorites</a>
-      <a href="../stats/">Statistics</a>
+      <a href="/subway/">Index</a>
+      <a href="/subway/new/">New ride</a>
+      <a href="/rides/" aria-current="page">The Ledger</a>
+      <a href="/subway/favorites/">Favorites</a>
+      <a href="/subway/stats/">Statistics</a>
     </nav>
     <span class="clock" data-clock>NYC --:--:--</span>
   </header>
@@ -27,7 +27,7 @@
   <main class="page">
 
     <section class="sect">
-      <h1 class="display display--md">Rides</h1>
+      <h1 class="display display--md">The Ledger</h1>
     </section>
 
     <section class="sect">
@@ -39,8 +39,7 @@
       <div class="toolbar">
         <div class="field grow">
           <label for="search">Search</label>
-          <input type="text" id="search" placeholder="union sq   ·   2026-11   ·   yes" autocomplete="off"
-            spellcheck="false" />
+          <input type="text" id="search" placeholder="Enter search" autocomplete="off" spellcheck="false" />
         </div>
         <div class="field">
           <label for="scope">In column</label>
@@ -65,8 +64,6 @@
         </div>
         <button type="button" class="ghost" id="clearSearch">Clear search</button>
       </div>
-      <p class="label muted" style="margin-top: 0.75rem;">Several words must all match. In the Line column, several
-        lines match any of them (try “L G”).</p>
     </section>
 
     <section class="sect sect--flush">
@@ -76,7 +73,7 @@
       </div>
 
       <div class="actions pad" style="margin-bottom: 1.25rem;">
-        <a href="../ride/" class="label">+ New ride</a>
+        <a href="/subway/new/" class="label">+ New ride</a>
         <button type="button" class="ghost" id="refreshBtn">Refresh</button>
         <button type="button" class="ghost" id="exportBtn">Export CSV</button>
         <button type="button" class="danger" id="clearTableBtn">Clear table</button>
@@ -107,10 +104,10 @@
 
   <footer class="foot">
     <span>Tools just for me to use :)</span>
-    <a href="../">← Subway index</a>
+    <a href="/subway/">← Subway index</a>
   </footer>
 
-  <script src="../../assets/site.js"></script>
+  <script src="/assets/site.js"></script>
   <script>
     const backendUrl = 'https://subway-tracker-production.up.railway.app';
 
@@ -532,7 +529,7 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       try {
-        const response = await fetch('../../data/stops.json');
+        const response = await fetch('/data/stops.json');
         stopsByLine = await response.json();
       } catch (error) {
         console.error('Failed to load subway data:', error);

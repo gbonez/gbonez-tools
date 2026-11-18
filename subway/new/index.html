@@ -18,7 +18,7 @@
     <nav class="nav" aria-label="Subway">
       <a href="../">Index</a>
       <a href="." aria-current="page">New ride</a>
-      <a href="../rides/">Rides</a>
+      <a href="/rides/">The Ledger</a>
       <a href="../favorites/">Favorites</a>
       <a href="../stats/">Statistics</a>
     </nav>
@@ -86,7 +86,7 @@
 
         <div class="wide actions">
           <button type="submit" id="submitButton" class="primary">Submit Ride</button>
-          <a href="../rides/" class="label">View all rides →</a>
+          <a href="/rides/" class="label">View the Ledger →</a>
         </div>
       </form>
 
@@ -95,43 +95,36 @@
 
     <section class="sect" id="doneSection" hidden>
       <div class="sect-head">
-        <h2>Ride recorded</h2>
+        <h2 id="doneTitle" tabindex="-1">Submitting ride</h2>
         <span class="label muted">02 / Confirmation</span>
       </div>
 
       <div class="stage" id="stage" aria-hidden="true">
         <div class="stage-sky"></div>
-        <div class="stage-head"><span>+ Now arriving</span><span id="stageNo">Fig. 01</span></div>
-        <div class="sign" id="sign"><span id="signBullet"></span><span id="signName"></span></div>
+        <div class="stage-head"><span id="stageStatus">+ Now arriving</span><span id="stageNo">Ride</span></div>
         <div class="stamp">Recorded<b id="stampNo">#0</b></div>
         <div class="rails"></div>
 
         <div class="train" id="train">
-          <span class="speed"></span>
           <div class="car">
             <div class="windows">
-              <i class="win"></i>
-              <span class="door"><i class="door-panel door-panel--l"></i><i class="door-panel door-panel--r"></i><i class="rider"></i></span>
-              <i class="win face"></i>
-              <i class="win face face--b"></i>
-              <span class="door"><i class="door-panel door-panel--l"></i><i class="door-panel door-panel--r"></i></span>
-              <i class="win"></i>
+              <i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i><i class="win"></i>
             </div>
             <div class="band"><span class="train-bullet" id="trainBullet"></span></div>
             <i class="wheel"></i><i class="wheel"></i><i class="wheel"></i><i class="wheel"></i>
-            <i class="puff"></i><i class="puff"></i><i class="puff"></i><i class="puff"></i>
           </div>
         </div>
       </div>
 
-      <div class="confirm">
+      <div class="confirm" id="confirmation" hidden>
         <p class="label muted" id="confirmMeta">Ride #0</p>
         <p class="confirm-route" id="confirmRoute"></p>
         <div class="actions">
           <button type="button" id="againBtn" class="primary">Add another ride</button>
-          <a href="../rides/" class="label">View all rides →</a>
+          <a href="/rides/" class="label">View the Ledger →</a>
         </div>
       </div>
+
       <p class="sr" id="live" aria-live="polite"></p>
     </section>
 
@@ -156,8 +149,27 @@
     const formSection = document.getElementById('formSection');
     const doneSection = document.getElementById('doneSection');
     const stage = document.getElementById('stage');
+    const train = document.getElementById('train');
+    const confirmation = document.getElementById('confirmation');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let stopsByLine = {};
+    let trainArrived = false;
+    let rideRecorded = false;
+
+    function departWhenReady() {
+      if (rideRecorded && (trainArrived || reducedMotion.matches)) {
+        stage.classList.add('depart');
+      }
+    }
+
+    train.addEventListener('animationend', event => {
+      if (event.animationName === 'arrive') {
+        trainArrived = true;
+        departWhenReady();
+      }
+    });
+    reducedMotion.addEventListener('change', departWhenReady);
 
     function setMessage(text, kind) {
       messageDiv.textContent = text;
@@ -238,6 +250,21 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting...';
       setMessage('', '');
+      trainArrived = false;
+      rideRecorded = false;
+      stage.classList.remove('run', 'recorded', 'depart');
+      stage.style.setProperty('--line', window.mtaColor(line));
+      document.getElementById('trainBullet').innerHTML = window.mtaBullet(line);
+      document.getElementById('stageNo').textContent = 'Ride';
+      document.getElementById('stageStatus').textContent = '+ Now arriving';
+      document.getElementById('doneTitle').textContent = 'Submitting ride';
+      document.getElementById('live').textContent = 'Submitting ride.';
+      confirmation.hidden = true;
+      formSection.hidden = true;
+      doneSection.hidden = false;
+      void stage.offsetWidth;
+      stage.classList.add('run');
+      document.getElementById('doneTitle').focus({ preventScroll: true });
 
       try {
         const res = await fetch(`${backendUrl}/rides/`, {
@@ -254,28 +281,32 @@
         const result = await res.json();
 
         if (!res.ok) {
+          doneSection.hidden = true;
+          stage.classList.remove('run', 'recorded', 'depart');
+          formSection.hidden = false;
           setMessage(`Error ${res.status}: ${result.detail || 'Unknown error'}`, 'error');
           return;
         }
         playConfirmation(result.ride || { line, board_stop: boardStop, depart_stop: departStop, date });
       } catch (err) {
         console.error(err);
+        doneSection.hidden = true;
+        stage.classList.remove('run', 'recorded', 'depart');
+        formSection.hidden = false;
         setMessage(`Error submitting ride: ${err.message}`, 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Ride';
+        if (!formSection.hidden) submitBtn.focus();
       }
     });
 
     // The train takes the line's own colour; the stamp and route text fill in around it.
     function playConfirmation(ride) {
       stage.style.setProperty('--line', window.mtaColor(ride.line));
-      stage.style.setProperty('--line-text', window.mtaTextColor(ride.line));
 
       const no = ride.ride_number != null ? `#${ride.ride_number}` : '';
       document.getElementById('trainBullet').innerHTML = window.mtaBullet(ride.line);
-      document.getElementById('signBullet').innerHTML = window.mtaBullet(ride.line);
-      document.getElementById('signName').textContent = ride.depart_stop;
       document.getElementById('stampNo').textContent = no || '✓';
       document.getElementById('stageNo').textContent = no ? `Ride ${no}` : 'Ride';
       document.getElementById('confirmMeta').textContent = `${no ? `Ride ${no} · ` : ''}${ride.date}`;
@@ -287,18 +318,18 @@
       document.getElementById('live').textContent =
         `Ride ${no} recorded: ${ride.line} train from ${ride.board_stop} to ${ride.depart_stop}.`;
 
-      formSection.hidden = true;
-      doneSection.hidden = false;
-      // Re-adding the class restarts every animation from the top.
-      stage.classList.remove('run');
-      void stage.offsetWidth;
-      stage.classList.add('run');
+      document.getElementById('doneTitle').textContent = 'Ride recorded';
+      document.getElementById('stageStatus').textContent = '+ Recorded';
+      confirmation.hidden = false;
+      stage.classList.add('recorded');
+      rideRecorded = true;
+      departWhenReady();
       document.getElementById('againBtn').focus({ preventScroll: true });
     }
 
     document.getElementById('againBtn').addEventListener('click', () => {
       doneSection.hidden = true;
-      stage.classList.remove('run');
+      stage.classList.remove('run', 'recorded', 'depart');
       formSection.hidden = false;
 
       lineSelect.value = '';

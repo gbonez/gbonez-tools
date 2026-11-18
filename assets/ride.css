@@ -1,18 +1,16 @@
 /*
-  Ride-recorded scene: a train in the line's own colour rolls in, the doors open
-  on a waving passenger, a stamp lands, then the doors close and it pulls out.
+  Ride-recorded scene: a train in the line's own colour rolls into the middle,
+  waits for the ride to be recorded, then rolls on out the other side.
   Everything inside .train is sized in em so the whole car scales as one.
 */
 
 .stage {
   --line: #6cbe45;
-  --line-text: #ffffff;
   --win: #e8e4d8;
-  --ink-dark: #0b0b0b;
 
   position: relative;
   overflow: hidden;
-  height: clamp(18rem, 42vw, 23rem);
+  height: clamp(16rem, 38vw, 20rem);
   background: var(--panel);
   color: #e8e4d8;
   border: 1px solid var(--ink);
@@ -52,35 +50,6 @@
 
 .stage-head span:last-child {
   color: #8a877d;
-}
-
-.sign {
-  position: absolute;
-  top: 3rem;
-  right: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  max-width: 62%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e8e4d8;
-  font: 700 0.8rem/1.2 var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0;
-}
-
-.sign::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  height: 1.4rem;
-  border-left: 1px solid #e8e4d8;
-}
-
-.sign .bullet {
-  font-size: 0.8rem;
 }
 
 .stamp {
@@ -130,6 +99,7 @@
   width: 24em;
   font-size: min(1rem, 3.2vw);
   will-change: transform;
+  transform: translate3d(-120vw, 0, 0);
 }
 
 .car {
@@ -151,95 +121,11 @@
 }
 
 .win {
-  position: relative;
   display: block;
   width: 2.4em;
   height: 100%;
   background: var(--win);
   border-radius: 0.2em;
-}
-
-.win.face {
-  overflow: hidden;
-}
-
-/* Two pupils on a layer that slides side to side inside the window. */
-.win.face::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 34% 56%, #0b0b0b 0 0.17em, transparent 0.18em),
-    radial-gradient(circle at 66% 56%, #0b0b0b 0 0.17em, transparent 0.18em);
-  animation: look 2.6s ease-in-out infinite alternate;
-}
-
-.win.face.face--b::before {
-  animation-delay: -1.1s;
-}
-
-.door {
-  position: relative;
-  display: block;
-  width: 3.1em;
-  height: 100%;
-  overflow: hidden;
-  background: #121315;
-  border-radius: 0.2em;
-}
-
-.door-panel {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background: var(--line);
-  filter: brightness(0.88);
-  border: 1px solid rgba(0, 0, 0, 0.35);
-}
-
-.door-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0.45em 0.28em 0.55em;
-  background: var(--win);
-  border-radius: 0.1em;
-}
-
-.door-panel--l {
-  left: 0;
-}
-
-.door-panel--r {
-  right: 0;
-}
-
-.rider {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 1.3em;
-  height: 2.1em;
-  margin-left: -0.65em;
-  background:
-    radial-gradient(circle at 36% 24%, #0b0b0b 0 0.09em, transparent 0.1em),
-    radial-gradient(circle at 64% 24%, #0b0b0b 0 0.09em, transparent 0.1em),
-    radial-gradient(circle at 50% 28%, var(--win) 0 0.55em, transparent 0.56em),
-    linear-gradient(var(--win), var(--win)) 50% 100% / 1em 1.05em no-repeat;
-  transform: scale(0);
-  transform-origin: 50% 100%;
-}
-
-.rider::after {
-  content: "";
-  position: absolute;
-  right: -0.12em;
-  bottom: 0.7em;
-  width: 0.24em;
-  height: 0.95em;
-  background: var(--win);
-  border-radius: 0.2em;
-  transform-origin: 50% 100%;
 }
 
 .band {
@@ -281,95 +167,31 @@
 .wheel:nth-of-type(3) { right: 5em; }
 .wheel:nth-of-type(4) { right: 2.2em; }
 
-.speed {
-  position: absolute;
-  right: 100%;
-  top: 0.6em;
-  width: 8em;
-  height: 4.4em;
-  margin-right: 0.6em;
-  background:
-    linear-gradient(90deg, transparent, #e8e4d8) 100% 0 / 100% 2px no-repeat,
-    linear-gradient(90deg, transparent, #e8e4d8) 40% 38% / 80% 2px no-repeat,
-    linear-gradient(90deg, transparent, #e8e4d8) 100% 74% / 65% 2px no-repeat,
-    linear-gradient(90deg, transparent, #e8e4d8) 20% 100% / 70% 2px no-repeat;
-  opacity: 0;
-}
-
-.puff {
-  position: absolute;
-  bottom: -0.35em;
-  left: 4em;
-  width: 0.75em;
-  height: 0.75em;
-  border-radius: 50%;
-  background: #e8e4d8;
-  opacity: 0;
-}
-
-.puff:nth-of-type(2) { left: 6em; width: 0.55em; height: 0.55em; }
-.puff:nth-of-type(3) { left: 3em; width: 0.5em; height: 0.5em; }
-.puff:nth-of-type(4) { left: 7.4em; }
-
 /* ───────── the sequence ───────── */
 
-.stage.run .sign {
-  animation: fade-in 0.4s ease 0.15s both;
-}
-
 .stage.run .train {
-  animation:
-    arrive 1.5s cubic-bezier(0.12, 0.8, 0.3, 1) both,
-    depart 1.4s cubic-bezier(0.6, 0, 0.9, 0.4) 3.9s forwards;
+  animation: arrive 1.5s cubic-bezier(0.12, 0.8, 0.3, 1) both;
 }
 
-.stage.run .car {
-  animation:
-    rattle 0.09s linear 15 alternate,
-    lurch 0.5s ease-out 1.15s both;
+.stage.run.depart .train {
+  animation: depart 1.3s cubic-bezier(0.6, 0, 0.9, 0.4) forwards;
 }
 
 .stage.run .wheel {
-  animation: spin 0.25s linear 6 both, spin 0.25s linear 3.9s 6;
+  animation: spin 0.25s linear 6;
 }
 
-.stage.run .speed {
-  animation:
-    streak-in 1.5s ease-out both,
-    streak-out 1.4s ease-in 3.9s forwards;
+.stage.run.depart .wheel {
+  animation: spin 0.25s linear 5;
 }
 
-.stage.run .puff {
-  animation: puff 0.9s ease-out 1.3s both;
-}
-
-.stage.run .puff:nth-of-type(2) { animation-delay: 1.4s; }
-.stage.run .puff:nth-of-type(3) { animation-delay: 1.35s; }
-.stage.run .puff:nth-of-type(4) { animation-delay: 1.45s; }
-
-.stage.run .door-panel--l {
-  animation: slide-l 0.4s ease 1.6s both, close-l 0.4s ease 3.4s forwards;
-}
-
-.stage.run .door-panel--r {
-  animation: slide-r 0.4s ease 1.6s both, close-r 0.4s ease 3.4s forwards;
-}
-
-.stage.run .rider {
-  animation: rider-in 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) 1.9s both, rider-out 0.2s ease 3.3s forwards;
-}
-
-.stage.run .rider::after {
-  animation: wave 0.45s ease-in-out 2.2s 4 alternate both;
-}
-
-.stage.run .stamp {
-  animation: stamp 0.3s cubic-bezier(0.2, 1.6, 0.4, 1) 2.2s both;
+.stage.recorded .stamp {
+  animation: stamp 0.3s cubic-bezier(0.2, 1.6, 0.4, 1) both;
 }
 
 .confirm {
   margin-top: 1.25rem;
-  animation: fade-in 0.4s ease 2.3s both;
+  animation: fade-in 0.4s ease both;
 }
 
 .confirm-route {
@@ -403,72 +225,8 @@
   to { transform: translate3d(120vw, 0, 0); }
 }
 
-@keyframes rattle {
-  from { transform: translateY(0); }
-  to { transform: translateY(-2px); }
-}
-
-@keyframes lurch {
-  0% { transform: rotate(0deg); }
-  40% { transform: rotate(-1.4deg); }
-  100% { transform: rotate(0deg); }
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-@keyframes streak-in {
-  0% { opacity: 0.9; }
-  100% { opacity: 0; }
-}
-
-@keyframes streak-out {
-  0% { opacity: 0; }
-  35% { opacity: 0.9; }
-  100% { opacity: 0.9; }
-}
-
-@keyframes puff {
-  0% { opacity: 0.9; transform: translate(0, 0) scale(0.6); }
-  100% { opacity: 0; transform: translate(-1.8em, -1.8em) scale(1.8); }
-}
-
-@keyframes slide-l {
-  to { transform: translateX(-102%); }
-}
-
-@keyframes slide-r {
-  to { transform: translateX(102%); }
-}
-
-@keyframes close-l {
-  from { transform: translateX(-102%); }
-  to { transform: translateX(0); }
-}
-
-@keyframes close-r {
-  from { transform: translateX(102%); }
-  to { transform: translateX(0); }
-}
-
-@keyframes rider-in {
-  to { transform: scale(1); }
-}
-
-@keyframes rider-out {
-  from { transform: scale(1); }
-  to { transform: scale(0); }
-}
-
-@keyframes wave {
-  from { transform: rotate(-28deg); }
-  to { transform: rotate(32deg); }
-}
-
-@keyframes look {
-  from { transform: translateX(-0.35em); }
-  to { transform: translateX(0.35em); }
 }
 
 @keyframes stamp {
@@ -481,13 +239,13 @@
   to { opacity: 1; }
 }
 
+/* Reduced motion: no train, just the stamp and the text. */
 @media (prefers-reduced-motion: reduce) {
   .train {
     display: none;
   }
 
-  .stage.run .sign,
-  .stage.run .stamp,
+  .stage.recorded .stamp,
   .confirm {
     animation: none;
     opacity: 1;

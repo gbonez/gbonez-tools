@@ -121,7 +121,8 @@ body {
 
 /* Start positions only: the script takes over and lets them roam. */
 .bubble {
-  --s: 10rem;
+  --bubble-size: 10rem;
+  --s: min(var(--bubble-size), 30vw, 25vh);
   --c1: #f4fff9;
   --c2: #9dffc4;
   --c3: #3fbf86;
@@ -151,7 +152,7 @@ body {
 .bubble--forrestle {
   --x: 68%;
   --y: 34%;
-  --s: 9rem;
+  --bubble-size: 9rem;
   --c1: #fff4fd;
   --c2: #ffb8f2;
   --c3: #cf6fbf;
@@ -161,7 +162,7 @@ body {
 .bubble--photo {
   --x: 38%;
   --y: 72%;
-  --s: 10.75rem;
+  --bubble-size: 10.75rem;
   --c1: #f3f5ff;
   --c2: #aab4ff;
   --c3: #5f6bdc;
@@ -171,7 +172,7 @@ body {
 .bubble--socials {
   --x: 72%;
   --y: 68%;
-  --s: 9.25rem;
+  --bubble-size: 9.25rem;
   --c1: #fffaf0;
   --c2: #ffd9a0;
   --c3: #d9984a;
@@ -235,7 +236,7 @@ body {
 .bubble-name {
   position: relative;
   font-weight: 700;
-  font-size: 1.12rem;
+  font-size: calc(var(--s) * 0.11);
   line-height: 1;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -298,23 +299,19 @@ body {
 
 @media (max-width: 480px) {
   .bubble {
-    --s: 7.75rem;
+    --bubble-size: 7.75rem;
   }
 
   .bubble--forrestle {
-    --s: 7.25rem;
+    --bubble-size: 7.25rem;
   }
 
   .bubble--photo {
-    --s: 8.75rem;
+    --bubble-size: 8.75rem;
   }
 
   .bubble--socials {
-    --s: 7.5rem;
-  }
-
-  .bubble-name {
-    font-size: 0.9rem;
+    --bubble-size: 7.5rem;
   }
 
   .hud-hint {

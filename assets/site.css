@@ -944,7 +944,6 @@ tr.editing .row-actions button.ghost:hover:not(:disabled) {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 34rem), 1fr));
   border-top: 1px solid var(--ink);
   border-left: 1px solid var(--ink);
-  counter-reset: fig;
 }
 
 /* Data lives on a fixed dark panel in both themes (charts draw light-on-dark). */
@@ -957,7 +956,6 @@ tr.editing .row-actions button.ghost:hover:not(:disabled) {
   border-right: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
   min-width: 0;
-  counter-increment: fig;
 }
 
 .chart-title {
@@ -975,12 +973,6 @@ tr.editing .row-actions button.ghost:hover:not(:disabled) {
 
 .chart-title::before {
   content: "+";
-}
-
-.chart-title::after {
-  content: "Fig. " counter(fig, decimal-leading-zero);
-  margin-left: auto;
-  color: var(--chart-dim);
 }
 
 .chart-wrapper {
